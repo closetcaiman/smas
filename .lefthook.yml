@@ -1,0 +1,16 @@
+pre-commit:
+  commands:
+    "Run Ruff linter":
+      run: "uv run ruff check --fix ."
+      glob: "**/*.py"
+    "Run Ruff Formatter":
+      run: "uv run ruff format ."
+      glob: "**/*.py"
+    "Run pyrefly":
+      run: "uv run pyrefly check"
+      glob: "**/*.py"
+
+commit-msg:
+  commands:
+    "Lint commit message":
+      run: "uv run commitlint --file {1}"
