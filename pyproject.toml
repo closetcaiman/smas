@@ -1,0 +1,18 @@
+[project]
+name = "smas"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "commitlint>=1.13.3",
+    "lefthook>=2.1.2",
+    "pyrefly>=0.54.0",
+    "ruff>=0.15.4",
+]
+test = [
+    "pytest>=9.0.2",
+]
