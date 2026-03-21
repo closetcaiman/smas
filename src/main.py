@@ -1,6 +1,4 @@
-def main():
-    print("Hello from smas!")
-
+from simulation import run_simulation
 
 if __name__ == "__main__":
-    main()
+    run_simulation(100)
