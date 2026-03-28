@@ -22,6 +22,8 @@ class Region:
     migrate_out_cost: int
     max_agents: int
 
+    temperature: int
+
     neighbors: List['Region']
     agents: List['Agent']
 
@@ -32,6 +34,7 @@ class Region:
         self.tall_grass_amount = min(self.tall_grass_amount + self.tall_grass_growth, self.tall_grass_max_amount)
         self.fruit_amount = min(self.fruit_amount + self.fruit_growth, self.fruit_max_amount)
         for agent in self.agents:
+            agent.temperature = self.temperature
             agent.step_simulation()
 
 
@@ -42,4 +45,4 @@ def energy_amount_from_food(food: Food):
         case Food.TALL_GRASS:
             return 15
         case Food.FRUIT:
-            return 20
+            return 30

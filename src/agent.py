@@ -8,6 +8,7 @@ from genome import Genome
 class Agent:
     energy: int
     age: int
+    temperature: int
     time_since_last_breeding: int
     genome: Genome
 
@@ -33,7 +34,8 @@ class Agent:
         return (in_cost + out_cost) * (1 + self.age / 100)
 
     def step_simulation(self):
-        self.energy -= round(10 * (1 + (self.age / 100)))
+        temperature_hard_to_maintain = abs(self.temperature - self.genome.ideal_temperature.value) > self.genome.temperature_tolerance.value
+        self.energy -= round(self.genome.metabolic_rate.value * (1 + (self.age / 100)) * (2 if temperature_hard_to_maintain else 1))
         self.age += 1
         self.time_since_last_breeding += 1
 

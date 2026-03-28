@@ -1,3 +1,4 @@
+import random
 from typing import List
 from region import Region
 
@@ -15,17 +16,18 @@ class Grid:
             for j in range(self._width):
                 self._data[i].append(Region(
                     grass_amount=20,
-                    grass_growth=1,
+                    grass_growth=3,
                     grass_max_amount=100,
                     tall_grass_amount=10,
-                    tall_grass_growth=1,
+                    tall_grass_growth=2,
                     tall_grass_max_amount=100,
                     fruit_amount=30,
-                    fruit_growth=1,
+                    fruit_growth=2,
                     fruit_max_amount=100,
                     migrate_in_cost=50,
                     migrate_out_cost=50,
                     max_agents=10,
+                    temperature=random.randrange(0, 28),
                     neighbors=[],
                     agents=[],
                 ))

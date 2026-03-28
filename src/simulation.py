@@ -8,9 +8,9 @@ from region import Region, energy_amount_from_food
 
 def run_simulation(num_steps):
     print("Initializing...", end='')
-    grid = Grid(5, 5)
+    grid = Grid(10, 10)
     regions = list(grid.regions())
-    initialize_agents(10, random.sample(regions, 5))
+    initialize_agents(20, random.sample(regions, 20))
     print("Done")
 
     print("Simulation start")
@@ -30,10 +30,11 @@ def initialize_agents(num_agents_per_region: int, regions: List[Region]):
         agents = []
         for _ in range(num_agents_per_region):
             agents.append(Agent(
-                energy=50,
+                energy=random.randrange(100, 150),
                 age=0,
                 time_since_last_breeding=0,
-                genome=make_starting_genome()
+                genome=make_starting_genome(),
+                temperature=20
             ))
         region.agents = agents
 
@@ -64,7 +65,8 @@ def breed_agents(reproducing_agents: List[Agent]) -> List[Agent]:
             energy=(a[i].energy + b[i].energy) // 2,
             age=0,
             time_since_last_breeding=0,
-            genome=cross_genomes(a[i].genome, b[i].genome)
+            genome=cross_genomes(a[i].genome, b[i].genome),
+            temperature=a[i].temperature
         ))
     return new_agents
 
