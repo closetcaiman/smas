@@ -79,7 +79,7 @@ def make_starting_genome():
         min_energy_to_reproduce=IntGenome(random.randrange(40, 80), 16),
         preferred_food=SequenceGenome(shuffled([Food.GRASS.value, Food.TALL_GRASS.value, Food.FRUIT.value]), 6, 2),
         preferred_action=SequenceGenome(shuffled([Action.EAT.value, Action.REPRODUCE.value, Action.MIGRATE.value]), 6, 2),
-        ideal_temperature=IntGenome(random.randrange(10, 30), 8),
+        ideal_temperature=IntGenome(random.randrange(0, 28), 8),
         temperature_tolerance=IntGenome(random.randrange(4, 10), 8),
         metabolic_rate=IntGenome(random.randrange(10, 30), 6),
         maturity_age=IntGenome(random.randrange(20, 40), 16),
