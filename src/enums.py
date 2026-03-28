@@ -8,6 +8,6 @@ class Food(Enum):
 
 
 class Action(Enum):
-    EAT = 0,
-    MIGRATE = 1,
-    REPRODUCE = 2,
+    EAT = 0
+    MIGRATE = 1
+    REPRODUCE = 2

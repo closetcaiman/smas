@@ -27,17 +27,19 @@ class Region:
 
     is_barrier: bool = False
 
-    def grow(self):
+    def step_simulation(self):
         self.grass_amount = min(self.grass_amount + self.grass_growth, self.grass_max_amount)
         self.tall_grass_amount = min(self.tall_grass_amount + self.tall_grass_growth, self.tall_grass_max_amount)
         self.fruit_amount = min(self.fruit_amount + self.fruit_growth, self.fruit_max_amount)
+        for agent in self.agents:
+            agent.step_simulation()
 
 
 def energy_amount_from_food(food: Food):
     match food:
         case Food.GRASS:
-            return 20
+            return 10
         case Food.TALL_GRASS:
-            return 30
+            return 15
         case Food.FRUIT:
-            return 40
+            return 20

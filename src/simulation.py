@@ -8,18 +8,22 @@ from region import Region, energy_amount_from_food
 
 def run_simulation(num_steps):
     print("Initializing...", end='')
-    grid = Grid(10, 10)
+    grid = Grid(5, 5)
     regions = list(grid.regions())
     initialize_agents(10, random.sample(regions, 5))
     print("Done")
 
     print("Simulation start")
     for i in range(num_steps):
+        print(f"---\nStep #{i+1} num of agents: {sum([len(region.agents) for region in grid.regions()])}")
+        stats = { "born": 0, "dead": 0 }
         for region in grid.regions():
-            perform_agent_actions(region)
-            remove_dead_agents(region)
+            region_stats = perform_agent_actions(region)
             update_region(region)
-        print(f"Step #{i+1} num of agents: {sum([len(region.agents) for region in grid.regions()])}")
+            stats["born"] += region_stats["born"]
+            stats["dead"] += region_stats["dead"]
+        print(stats)
+
 
 def initialize_agents(num_agents_per_region: int, regions: List[Region]):
     for region in regions:
@@ -38,10 +42,14 @@ def perform_agent_actions(region: Region):
     migrating_agents = [agent for agent in region.agents if agent.wants_action() == Action.MIGRATE]
     eating_agents = [agent for agent in region.agents if agent.wants_action() == Action.EAT]
 
+    new_agents = []
     if len(reproducing_agents) > 1:
-        breed_agents(reproducing_agents)
+        new_agents = breed_agents(reproducing_agents)
+        region.agents.extend(new_agents)
     migrate_agents(region, migrating_agents)
     feed_agents(region, eating_agents)
+    dead_agents = remove_dead_agents(region)
+    return {"born": len(new_agents), "dead": len(dead_agents)}
 
 
 def breed_agents(reproducing_agents: List[Agent]) -> List[Agent]:
@@ -81,10 +89,14 @@ def feed_agents(region: Region, eating_agents: List[Agent]):
 
 def remove_dead_agents(region: Region):
     living_agents = []
+    dead_agents = []
     for agent in region.agents:
         if agent.energy > 0:
             living_agents.append(agent)
+        else:
+            dead_agents.append(agent)
     region.agents = living_agents
+    return dead_agents
 
 def update_region(region: Region):
-    region.grow()
+    region.step_simulation()

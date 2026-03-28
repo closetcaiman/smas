@@ -49,19 +49,19 @@ class Genome:
 
     def _all_parts(self):
         return [
-            self.min_energy_to_reproduce.to_dna(),
-            self.preferred_food.to_dna(),
-            self.preferred_action.to_dna(),
-            self.ideal_temperature.to_dna(),
-            self.temperature_tolerance.to_dna(),
-            self.metabolic_rate.to_dna(),
-            self.maturity_age.to_dna(),
-            self.size.to_dna(),
-            self.breeding_interval.to_dna()
+            self.min_energy_to_reproduce,
+            self.preferred_food,
+            self.preferred_action,
+            self.ideal_temperature,
+            self.temperature_tolerance,
+            self.metabolic_rate,
+            self.maturity_age,
+            self.size,
+            self.breeding_interval
         ]
 
     def total_len(self):
-        return [p.size for p in self._all_parts()]
+        return sum([p.size for p in self._all_parts()])
 
     def from_dna(self, v):
         assert len(v) == self.total_len()
@@ -77,8 +77,8 @@ class Genome:
 def make_starting_genome():
     return Genome(
         min_energy_to_reproduce=IntGenome(50, 16),
-        preferred_food=SequenceGenome([Food.GRASS.value, Food.TALL_GRASS.value, Food.FRUIT.value], 2, 6),
-        preferred_action=SequenceGenome([Action.EAT.value, Action.REPRODUCE.value, Action.MIGRATE.value], 2, 6),
+        preferred_food=SequenceGenome([Food.GRASS.value, Food.TALL_GRASS.value, Food.FRUIT.value], 6, 2),
+        preferred_action=SequenceGenome([Action.EAT.value, Action.REPRODUCE.value, Action.MIGRATE.value], 6, 2),
         ideal_temperature=IntGenome(20, 8),
         temperature_tolerance=IntGenome(20, 8),
         metabolic_rate=IntGenome(2, 6),

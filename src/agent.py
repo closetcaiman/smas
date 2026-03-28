@@ -31,3 +31,12 @@ class Agent:
 
     def calc_migration_cost(self, in_cost: int, out_cost: int):
         return (in_cost + out_cost) * (1 + self.age / 100)
+
+    def step_simulation(self):
+        self.energy -= round(10 * (1 + (self.age / 100)))
+        self.age += 1
+        self.time_since_last_breeding += 1
+
+    def apply_reproduction_cost(self):
+        self.energy -= self.genome.min_energy_to_reproduce.value
+        self.time_since_last_breeding = 0

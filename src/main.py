@@ -1,4 +1,4 @@
 from simulation import run_simulation
 
 if __name__ == "__main__":
-    run_simulation(100)
+    run_simulation(200)
