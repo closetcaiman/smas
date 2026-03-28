@@ -97,6 +97,10 @@ def remove_dead_agents(region: Region):
             living_agents.append(agent)
         else:
             dead_agents.append(agent)
+    if len(living_agents) > region.max_agents:
+        living_agents.sort(key=lambda agent: -agent.energy)
+        living_agents = living_agents[:region.max_agents]
+        dead_agents.extend(living_agents[region.max_agents:])
     region.agents = living_agents
     return dead_agents
 
