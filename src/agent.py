@@ -16,7 +16,7 @@ class Agent:
     time_since_last_breeding: int
     genome: Genome
 
-    def wants_action(self):
+    def get_wanted_action(self):
         """
         Returns the action that the agent wants to do.
         It is selected at random from possible actions

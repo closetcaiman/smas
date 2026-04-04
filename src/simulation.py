@@ -48,13 +48,13 @@ def initialize_agents(num_agents_per_region: int, regions: List[Region]):
 
 def perform_agent_actions(region: Region):
     reproducing_agents = [
-        agent for agent in region.agents if agent.wants_action() == Action.REPRODUCE
+        agent for agent in region.agents if agent.get_wanted_action() == Action.REPRODUCE
     ]
     migrating_agents = [
-        agent for agent in region.agents if agent.wants_action() == Action.MIGRATE
+        agent for agent in region.agents if agent.get_wanted_action() == Action.MIGRATE
     ]
     eating_agents = [
-        agent for agent in region.agents if agent.wants_action() == Action.EAT
+        agent for agent in region.agents if agent.get_wanted_action() == Action.EAT
     ]
 
     new_agents = []
