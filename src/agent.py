@@ -4,6 +4,9 @@ import random
 from enums import Action
 from genome import Genome
 
+MOST_PREFERRED_ACTION_WEIGHT = 6
+ACTION_WEIGHT_DECAY = 2
+
 
 @dataclasses.dataclass
 class Agent:
@@ -14,8 +17,13 @@ class Agent:
     genome: Genome
 
     def wants_action(self):
+        """
+        Returns the action that the agent wants to do.
+        It is selected at random from possible actions
+        with probability weighted by actor's preference.
+        """
         choices = []
-        weight = 6
+        weight = MOST_PREFERRED_ACTION_WEIGHT
         for action in self.genome.preferred_action.value:
             if (
                 action == Action.REPRODUCE.value
@@ -29,7 +37,7 @@ class Agent:
             else:
                 choices.extend([Action.EAT] * weight)
 
-            weight //= 2
+            weight //= ACTION_WEIGHT_DECAY
 
         return random.choice(choices)
 
