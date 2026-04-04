@@ -1,11 +1,12 @@
 import random
 from typing import List
 
+from action import Action
 from agent import Agent
-from enums import Action, FoodType
+from food_type import FoodType
 from genome import cross_genomes, make_starting_genome
 from grid import Grid
-from region import Region, energy_amount_from_food
+from region import Region
 
 
 def run_simulation(num_steps):
@@ -106,15 +107,15 @@ def feed_agents(region: Region, eating_agents: List[Agent]):
     for agent in eating_agents:
         for pref in agent.genome.preferred_food.value:
             if pref == FoodType.GRASS.value and region.grass_amount > 0:
-                agent.energy += energy_amount_from_food(FoodType.GRASS)
+                agent.energy += FoodType.GRASS.energy_amount()
             elif pref == FoodType.TALL_GRASS.value and region.tall_grass_amount > 0:
-                agent.energy += energy_amount_from_food(FoodType.TALL_GRASS)
+                agent.energy += FoodType.TALL_GRASS.energy_amount()
             elif (
                 pref == FoodType.FRUIT
                 and agent.genome.size.value >= 40
                 and region.fruit_amount > 0
             ):
-                agent.energy += energy_amount_from_food(FoodType.FRUIT)
+                agent.energy += FoodType.FRUIT.energy_amount()
 
 
 def remove_dead_agents(region: Region):

@@ -1,7 +1,7 @@
 import dataclasses
 import random
 
-from enums import Action
+from action import Action
 from genome import Genome
 
 MOST_PREFERRED_ACTION_WEIGHT = 6

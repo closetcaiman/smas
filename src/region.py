@@ -2,7 +2,6 @@ import dataclasses
 from typing import List
 
 from agent import Agent
-from enums import FoodType
 
 
 @dataclasses.dataclass
@@ -43,13 +42,3 @@ class Region:
         for agent in self.agents:
             agent.temperature = self.temperature
             agent.step_simulation()
-
-
-def energy_amount_from_food(food: FoodType):
-    match food:
-        case FoodType.GRASS:
-            return 10
-        case FoodType.TALL_GRASS:
-            return 15
-        case FoodType.FRUIT:
-            return 30

@@ -2,7 +2,8 @@ import dataclasses
 import random
 from typing import List
 
-from enums import Action, FoodType
+from action import Action
+from food_type import FoodType
 
 
 @dataclasses.dataclass
