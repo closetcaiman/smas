@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class Food(Enum):
+class FoodType(Enum):
     GRASS = 0
     TALL_GRASS = 1
     FRUIT = 2

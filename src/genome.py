@@ -2,7 +2,7 @@ import dataclasses
 import random
 from typing import List
 
-from enums import Action, Food
+from enums import Action, FoodType
 
 
 @dataclasses.dataclass
@@ -10,9 +10,9 @@ class IntGenome:
     value: int
     size: int
 
-    def from_dna(self, v):
-        assert len(v) == self.size
-        self.value = int(v, 2)
+    def from_dna(self, dna: str):
+        assert len(dna) == self.size
+        self.value = int(dna, 2)
 
     def to_dna(self):
         return f"{self.value:0{self.size}b}"
@@ -24,11 +24,11 @@ class SequenceGenome:
     size: int
     each_size: int
 
-    def from_dna(self, v):
-        assert len(v) == self.size
+    def from_dna(self, dna: str):
+        assert len(dna) == self.size
         self.value = []
-        for i in range(0, len(v), self.each_size):
-            self.value.append(int(v[i : i + self.each_size], 2))
+        for i in range(0, len(dna), self.each_size):
+            self.value.append(int(dna[i : i + self.each_size], 2))
 
     def to_dna(self):
         dna = "".join([f"{v:0{self.each_size}b}" for v in self.value])
@@ -63,11 +63,11 @@ class Genome:
     def total_len(self):
         return sum([p.size for p in self._all_parts()])
 
-    def from_dna(self, v):
-        assert len(v) == self.total_len()
+    def from_dna(self, dna: str):
+        assert len(dna) == self.total_len()
         i = 0
         for p in self._all_parts():
-            p.from_dna(v[i : i + p.size])
+            p.from_dna(dna[i : i + p.size])
             i += p.size
 
     def to_dna(self):
@@ -78,7 +78,11 @@ def make_starting_genome():
     return Genome(
         min_energy_to_reproduce=IntGenome(random.randrange(40, 80), 16),
         preferred_food=SequenceGenome(
-            shuffled([Food.GRASS.value, Food.TALL_GRASS.value, Food.FRUIT.value]), 6, 2
+            shuffled(
+                [FoodType.GRASS.value, FoodType.TALL_GRASS.value, FoodType.FRUIT.value]
+            ),
+            6,
+            2,
         ),
         preferred_action=SequenceGenome(
             shuffled([Action.EAT.value, Action.REPRODUCE.value, Action.MIGRATE.value]),
@@ -94,7 +98,7 @@ def make_starting_genome():
     )
 
 
-def shuffled(values):
+def shuffled(values: list):
     random.shuffle(values)
     return values
 

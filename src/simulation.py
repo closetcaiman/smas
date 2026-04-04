@@ -2,7 +2,7 @@ import random
 from typing import List
 
 from agent import Agent
-from enums import Action, Food
+from enums import Action, FoodType
 from genome import cross_genomes, make_starting_genome
 from grid import Grid
 from region import Region, energy_amount_from_food
@@ -105,16 +105,16 @@ def migrate_agents(current_region: Region, migrating_agents: List[Agent]):
 def feed_agents(region: Region, eating_agents: List[Agent]):
     for agent in eating_agents:
         for pref in agent.genome.preferred_food.value:
-            if pref == Food.GRASS.value and region.grass_amount > 0:
-                agent.energy += energy_amount_from_food(Food.GRASS)
-            elif pref == Food.TALL_GRASS.value and region.tall_grass_amount > 0:
-                agent.energy += energy_amount_from_food(Food.TALL_GRASS)
+            if pref == FoodType.GRASS.value and region.grass_amount > 0:
+                agent.energy += energy_amount_from_food(FoodType.GRASS)
+            elif pref == FoodType.TALL_GRASS.value and region.tall_grass_amount > 0:
+                agent.energy += energy_amount_from_food(FoodType.TALL_GRASS)
             elif (
-                pref == Food.FRUIT
+                pref == FoodType.FRUIT
                 and agent.genome.size.value >= 40
                 and region.fruit_amount > 0
             ):
-                agent.energy += energy_amount_from_food(Food.FRUIT)
+                agent.energy += energy_amount_from_food(FoodType.FRUIT)
 
 
 def remove_dead_agents(region: Region):
