@@ -2,7 +2,7 @@ import dataclasses
 import random
 
 from action import Action
-from genome import Genome
+from genome.full_combined_genome import FullCombinedGenome
 
 MOST_PREFERRED_ACTION_WEIGHT = 6
 ACTION_WEIGHT_DECAY = 2
@@ -14,7 +14,7 @@ class Agent:
     age: int
     temperature: int
     time_since_last_breeding: int
-    genome: Genome
+    genome: FullCombinedGenome
 
     def get_wanted_action(self):
         """

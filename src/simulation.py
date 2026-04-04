@@ -4,7 +4,7 @@ from typing import List
 from action import Action
 from agent import Agent
 from food_type import FoodType
-from genome import cross_genomes, make_starting_genome
+from genome.utils import cross_genomes, make_starting_genome
 from grid import Grid
 from region import Region
 
@@ -48,7 +48,9 @@ def initialize_agents(num_agents_per_region: int, regions: List[Region]):
 
 def perform_agent_actions(region: Region):
     reproducing_agents = [
-        agent for agent in region.agents if agent.get_wanted_action() == Action.REPRODUCE
+        agent
+        for agent in region.agents
+        if agent.get_wanted_action() == Action.REPRODUCE
     ]
     migrating_agents = [
         agent for agent in region.agents if agent.get_wanted_action() == Action.MIGRATE
