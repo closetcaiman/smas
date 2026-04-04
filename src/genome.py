@@ -47,7 +47,7 @@ class Genome:
     size: IntGenome
     breeding_interval: IntGenome
 
-    def _all_parts(self):
+    def __all_parts(self):
         return [
             self.min_energy_to_reproduce,
             self.preferred_food,
@@ -61,17 +61,17 @@ class Genome:
         ]
 
     def total_len(self):
-        return sum([p.size for p in self._all_parts()])
+        return sum([p.size for p in self.__all_parts()])
 
     def from_dna(self, dna: str):
         assert len(dna) == self.total_len()
         i = 0
-        for p in self._all_parts():
+        for p in self.__all_parts():
             p.from_dna(dna[i : i + p.size])
             i += p.size
 
     def to_dna(self):
-        return "".join([p.to_dna() for p in self._all_parts()])
+        return "".join([p.to_dna() for p in self.__all_parts()])
 
 
 def make_starting_genome():
