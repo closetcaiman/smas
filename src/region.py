@@ -1,5 +1,6 @@
 import dataclasses
 from typing import List
+
 from agent import Agent
 from enums import Food
 
@@ -24,15 +25,21 @@ class Region:
 
     temperature: int
 
-    neighbors: List['Region']
-    agents: List['Agent']
+    neighbors: List["Region"]
+    agents: List["Agent"]
 
     is_barrier: bool = False
 
     def step_simulation(self):
-        self.grass_amount = min(self.grass_amount + self.grass_growth, self.grass_max_amount)
-        self.tall_grass_amount = min(self.tall_grass_amount + self.tall_grass_growth, self.tall_grass_max_amount)
-        self.fruit_amount = min(self.fruit_amount + self.fruit_growth, self.fruit_max_amount)
+        self.grass_amount = min(
+            self.grass_amount + self.grass_growth, self.grass_max_amount
+        )
+        self.tall_grass_amount = min(
+            self.tall_grass_amount + self.tall_grass_growth, self.tall_grass_max_amount
+        )
+        self.fruit_amount = min(
+            self.fruit_amount + self.fruit_growth, self.fruit_max_amount
+        )
         for agent in self.agents:
             agent.temperature = self.temperature
             agent.step_simulation()
