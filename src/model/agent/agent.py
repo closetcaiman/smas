@@ -1,11 +1,10 @@
 import dataclasses
 import random
 
-from action import Action
-from genome.full_combined_genome import FullCombinedGenome
+from model.constants import ACTION_WEIGHT_DECAY, MOST_PREFERRED_ACTION_WEIGHT
 
-MOST_PREFERRED_ACTION_WEIGHT = 6
-ACTION_WEIGHT_DECAY = 2
+from .action import Action
+from .genome.full_combined_genome import FullCombinedGenome
 
 
 @dataclasses.dataclass

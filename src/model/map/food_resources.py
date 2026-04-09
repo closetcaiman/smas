@@ -1,11 +1,8 @@
 import dataclasses
-from typing import List
-
-from agent import Agent
 
 
 @dataclasses.dataclass
-class Region:
+class FoodResources:
     grass_amount: int
     grass_max_amount: int
     grass_growth: int
@@ -18,17 +15,6 @@ class Region:
     fruit_max_amount: int
     fruit_growth: int
 
-    migrate_in_cost: int
-    migrate_out_cost: int
-    max_agents: int
-
-    temperature: int
-
-    neighbors: List["Region"]
-    agents: List["Agent"]
-
-    is_barrier: bool = False
-
     def step_simulation(self):
         self.grass_amount = min(
             self.grass_amount + self.grass_growth, self.grass_max_amount
@@ -39,6 +25,3 @@ class Region:
         self.fruit_amount = min(
             self.fruit_amount + self.fruit_growth, self.fruit_max_amount
         )
-        for agent in self.agents:
-            agent.temperature = self.temperature
-            agent.step_simulation()

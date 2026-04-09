@@ -1,7 +1,7 @@
 import dataclasses
 from typing import List
 
-from genome.genome import Genome
+from .genome import Genome
 
 
 @dataclasses.dataclass

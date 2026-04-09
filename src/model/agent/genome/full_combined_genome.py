@@ -1,8 +1,8 @@
 import dataclasses
 
-from genome.genome import Genome
-from genome.int_genome import IntGenome
-from genome.sequence_genome import SequenceGenome
+from .genome import Genome
+from .int_genome import IntGenome
+from .sequence_genome import SequenceGenome
 
 
 @dataclasses.dataclass
