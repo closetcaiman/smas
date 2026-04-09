@@ -12,6 +12,19 @@ help:
 	@echo "  make test             - Run pytest tests"
 
 # ------------------------
+# Simulation
+# ------------------------
+
+run-simulation:
+	@echo "🚀 Running simulation..."
+	@uv run python src/main.py
+
+
+# ------------------------
+# Development
+# ------------------------
+
+# ------------------------
 # Dependency installation
 # ------------------------
 .PHONY: setup
