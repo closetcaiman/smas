@@ -16,7 +16,7 @@ class Region:
     agents: List[Agent]
     is_barrier: bool = False
 
-    def step_simulation(self):
+    def step_simulation(self) -> None:
         self.food.step_simulation()
         for agent in self.agents:
             agent.temperature = self.temperature

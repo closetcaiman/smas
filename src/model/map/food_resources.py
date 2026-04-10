@@ -15,7 +15,7 @@ class FoodResources:
     fruit_max_amount: int
     fruit_growth: int
 
-    def step_simulation(self):
+    def step_simulation(self) -> None:
         self.grass_amount = min(
             self.grass_amount + self.grass_growth, self.grass_max_amount
         )

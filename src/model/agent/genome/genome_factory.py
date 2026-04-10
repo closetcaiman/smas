@@ -36,7 +36,7 @@ def create_genome() -> FullCombinedGenome:
     )
 
 
-def _shuffled(values: list):
+def _shuffled(values: list) -> list:
     random.shuffle(values)
     return values
 

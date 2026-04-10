@@ -2,8 +2,10 @@ from abc import ABC, abstractmethod
 
 
 class Genome(ABC):
+    length: int
+
     @abstractmethod
-    def from_dna(self, dna: str):
+    def from_dna(self, dna: str) -> None:
         pass
 
     @abstractmethod

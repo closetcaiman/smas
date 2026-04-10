@@ -10,7 +10,7 @@ class Grid:
     _width: int
     _height: int
 
-    def __init__(self, width: int, height: int):
+    def __init__(self, width: int, height: int) -> None:
         self._data = [[] for _ in range(height)]
         self._width = width
         self._height = height

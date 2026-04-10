@@ -43,7 +43,7 @@ class Simulation:
         return self._step()
 
     def _step(self):
-        stats = {}
+        stats: dict[str, int] = {}
         for region in self.grid.regions:
             region_stats = self._perform_agent_actions(region)
             stats["born"] = stats.get("born", 0) + region_stats.get("born", 0)
@@ -55,7 +55,7 @@ class Simulation:
             "dead": stats.get("dead", 0),
         }
 
-    def _perform_agent_actions(self, region: Region) -> dict:
+    def _perform_agent_actions(self, region: Region) -> dict[str, int]:
         reproducing_agents = [
             agent
             for agent in region.agents

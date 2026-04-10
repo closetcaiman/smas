@@ -17,7 +17,7 @@ class FullCombinedGenome(Genome):
     size: IntGenome
     breeding_interval: IntGenome
 
-    def __all_parts(self):
+    def __all_parts(self) -> list[Genome]:
         return [
             self.min_energy_to_reproduce,
             self.preferred_food,
@@ -30,15 +30,15 @@ class FullCombinedGenome(Genome):
             self.breeding_interval,
         ]
 
-    def total_len(self):
-        return sum([p.size for p in self.__all_parts()])
+    def total_len(self) -> int:
+        return sum([p.length for p in self.__all_parts()])
 
-    def from_dna(self, dna: str):
+    def from_dna(self, dna: str) -> None:
         assert len(dna) == self.total_len()
         i = 0
         for p in self.__all_parts():
-            p.from_dna(dna[i : i + p.size])
-            i += p.size
+            p.from_dna(dna[i : i + p.length])
+            i += p.length
 
-    def to_dna(self):
+    def to_dna(self) -> str:
         return "".join([p.to_dna() for p in self.__all_parts()])

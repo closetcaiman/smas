@@ -6,7 +6,7 @@ class FoodType(Enum):
     TALL_GRASS = 1
     FRUIT = 2
 
-    def energy_amount(self):
+    def energy_amount(self) -> int:
         match self:
             case FoodType.GRASS:
                 return 10
@@ -14,4 +14,5 @@ class FoodType(Enum):
                 return 15
             case FoodType.FRUIT:
                 return 30
-        assert False
+            case _:
+                raise ValueError(f"Unknown food type: {self}")

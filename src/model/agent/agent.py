@@ -15,7 +15,7 @@ class Agent:
     time_since_last_breeding: int
     genome: FullCombinedGenome
 
-    def get_wanted_action(self):
+    def get_wanted_action(self) -> Action:
         """
         Returns the action that the agent wants to do.
         It is selected at random from possible actions
@@ -40,7 +40,7 @@ class Agent:
 
         return random.choice(choices)
 
-    def step_simulation(self):
+    def step_simulation(self) -> None:
         temperature_hard_to_maintain = (
             abs(self.temperature - self.genome.ideal_temperature.value)
             > self.genome.temperature_tolerance.value
@@ -53,6 +53,6 @@ class Agent:
         self.age += 1
         self.time_since_last_breeding += 1
 
-    def apply_reproduction_cost(self):
+    def apply_reproduction_cost(self) -> None:
         self.energy -= self.genome.min_energy_to_reproduce.value
         self.time_since_last_breeding = 0
