@@ -1,21 +1,22 @@
 import random
 from typing import List
 
-from .agent.action import Action
-from .agent.agent import Agent
-from .agent.genome.genome_factory import create_genome, crossover_genomes
-from .map.food_type import FoodType
-from .map.grid import Grid
-from .map.region import Region
+from model.agent.action import Action
+from model.agent.agent import Agent
+from model.agent.genome.genome_factory import create_genome, crossover_genomes
+from model.map.food_type import FoodType
+from model.map.grid import Grid
+from model.map.region import Region
 
 
 class Simulation:
     def __init__(self, grid_width: int, grid_height: int, num_agents_per_region: int):
         self.grid = Grid(grid_width, grid_height)
         regions = list(self.grid.regions)
-        self.__initialize_agents(num_agents_per_region, regions)
+        self._initialize_agents(num_agents_per_region, regions)
+        self.step_count = 0
 
-    def __initialize_agents(self, num_agents_per_region: int, regions: List[Region]):
+    def _initialize_agents(self, num_agents_per_region: int, regions: List[Region]):
         for region in regions:
             agents = []
             for _ in range(num_agents_per_region):
@@ -30,21 +31,31 @@ class Simulation:
                 )
             region.agents = agents
 
-    def run(self, num_steps: int):
-        print("Simulation start")
-        for i in range(num_steps):
-            print(
-                f"---\nStep #{i + 1} num of agents: {sum([len(region.agents) for region in self.grid.regions])}"
-            )
-            stats = {"born": 0, "dead": 0}
-            for region in self.grid.regions:
-                region_stats = self.__perform_agent_actions(region)
-                region.step_simulation()
-                stats["born"] += region_stats["born"]
-                stats["dead"] += region_stats["dead"]
-            print(stats)
+    def run(self, num_steps: int, print_stats: bool = False):
+        for _ in range(num_steps):
+            if print_stats:
+                print(self.step())
+            else:
+                self.step()
 
-    def __perform_agent_actions(self, region: Region) -> dict:
+    def step(self):
+        self.step_count += 1
+        return self._step()
+
+    def _step(self):
+        stats = {}
+        for region in self.grid.regions:
+            region_stats = self._perform_agent_actions(region)
+            stats["born"] = stats.get("born", 0) + region_stats.get("born", 0)
+            stats["dead"] = stats.get("dead", 0) + region_stats.get("dead", 0)
+            region.step_simulation()
+        return {
+            "step": self.step_count,
+            "born": stats.get("born", 0),
+            "dead": stats.get("dead", 0),
+        }
+
+    def _perform_agent_actions(self, region: Region) -> dict:
         reproducing_agents = [
             agent
             for agent in region.agents
@@ -61,14 +72,14 @@ class Simulation:
 
         new_agents = []
         if len(reproducing_agents) > 1:
-            new_agents = self.__breed_agents(reproducing_agents)
+            new_agents = self._breed_agents(reproducing_agents)
             region.agents.extend(new_agents)
-        self.__migrate_agents(region, migrating_agents)
-        self.__feed_agents(region, eating_agents)
-        dead_agents = self.__remove_dead_agents(region)
+        self._migrate_agents(region, migrating_agents)
+        self._feed_agents(region, eating_agents)
+        dead_agents = self._remove_dead_agents(region)
         return {"born": len(new_agents), "dead": len(dead_agents)}
 
-    def __breed_agents(self, reproducing_agents: List[Agent]) -> List[Agent]:
+    def _breed_agents(self, reproducing_agents: List[Agent]) -> List[Agent]:
         random.shuffle(reproducing_agents)
         a = reproducing_agents[: len(reproducing_agents) // 2]
         b = reproducing_agents[len(a) :]
@@ -87,7 +98,7 @@ class Simulation:
             )
         return new_agents
 
-    def __migrate_agents(self, current_region: Region, migrating_agents: List[Agent]):
+    def _migrate_agents(self, current_region: Region, migrating_agents: List[Agent]):
         for agent in migrating_agents:
             available_regions = [
                 r
@@ -102,7 +113,7 @@ class Simulation:
                 current_region.agents.remove(agent)
                 selected_region.agents.append(agent)
 
-    def __feed_agents(self, region: Region, eating_agents: List[Agent]):
+    def _feed_agents(self, region: Region, eating_agents: List[Agent]):
         for agent in eating_agents:
             for pref in agent.genome.preferred_food.value:
                 if pref == FoodType.GRASS.value and region.food.grass_amount > 0:
@@ -119,7 +130,7 @@ class Simulation:
                 ):
                     agent.energy += FoodType.FRUIT.energy_amount()
 
-    def __remove_dead_agents(self, region: Region) -> List[Agent]:
+    def _remove_dead_agents(self, region: Region) -> List[Agent]:
         living_agents = []
         dead_agents = []
         for agent in region.agents:

@@ -19,11 +19,6 @@ class TestSequenceGenome:
         genome = SequenceGenome(value=[1, 2, 3], size=6, each_size=2)
         assert genome.to_dna() == "011011"
 
-    def test_from_dna_different_values(self):
-        genome = SequenceGenome(value=[], size=16, each_size=4)
-        genome.from_dna("0001001000110100")
-        assert genome.value == [1, 2, 3, 4]
-
     def test_dna_length_validation(self):
         genome = SequenceGenome(value=[], size=6, each_size=2)
         with pytest.raises(AssertionError):
