@@ -1,10 +1,6 @@
-from model.simulation import Simulation
+"""Main entry point."""
 
-
-def main() -> None:
-    sim = Simulation(grid_width=12, grid_height=8, num_agents_per_region=5)
-    sim.run(num_steps=100, print_stats=True)
-
+from app import main
 
 if __name__ == "__main__":
     main()
