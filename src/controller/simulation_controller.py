@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Tuple
 
 import pygame
 
+from model.simulation.mas_stats import MASEvolutionStats
 from model.simulation.simulation import Simulation
 
 from . import config
@@ -34,6 +35,7 @@ class SimulationController:
         self.__cell_size = self.__calculate_cell_size()
         self.__renderer = self.__create_renderer()
         self.__data_collector = DataCollector(self.__simulation.grid)
+        self.__mas_stats = MASEvolutionStats()
 
         self.__fps = config.DEFAULT_FPS
         self.__done = False
@@ -77,6 +79,10 @@ class SimulationController:
         current_time = pygame.time.get_ticks()
         if current_time - self.__last_step_time >= self.__step_interval:
             self.__simulation.step()
+            if self.__mas_stats.barrier_introduced:
+                self.__mas_stats.calculate_stats(
+                    self.__simulation.grid, self.__grid_width // 2
+                )
             self.__last_step_time = current_time
 
     def render(self) -> None:
@@ -89,6 +95,7 @@ class SimulationController:
             epoch,
             total,
             speed,
+            self.__mas_stats,
         )
         pygame.display.flip()
 
@@ -101,6 +108,7 @@ class SimulationController:
         )
         self.__renderer = self.__create_renderer()
         self.__data_collector = DataCollector(self.__simulation.grid)
+        self.__mas_stats = MASEvolutionStats()
         self.__selected_cell = None
         self.__hovered_cell = None
         self.__paused = False
@@ -119,6 +127,7 @@ class SimulationController:
         col = self.__grid_width // 2
         for row in range(self.__grid_height):
             self.__simulation.grid._data[row][col].is_barrier = True
+        self.__mas_stats.record_barrier_introduction(self.__simulation.step_count, col)
 
     def speed_up(self) -> None:
         if self.__speed_index < len(config.STEP_INTERVAL_MS) - 1:

@@ -3,6 +3,7 @@ from typing import Tuple
 import pygame
 
 from model.map.grid import Grid
+from model.simulation.mas_stats import MASEvolutionStats
 
 from .config import SIDEBAR_WIDTH
 from .renderers.agent import AgentRenderer
@@ -32,13 +33,14 @@ class Renderer:
         epoch: int,
         total_agents: int,
         speed_label: str,
+        mas_stats: MASEvolutionStats | None = None,
     ) -> None:
         self.__grid_r.render_background()
         self.__grid_r.render_lines()
         self.__grid_r.render_barriers()
         self.__agent_r.render_all()
         self.__sidebar_r.render(
-            hovered_cell, selected_cell, epoch, total_agents, speed_label
+            hovered_cell, selected_cell, epoch, total_agents, speed_label, mas_stats
         )
 
     def is_in_grid_area(self, screen_x: int, screen_y: int) -> bool:

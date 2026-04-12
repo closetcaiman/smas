@@ -4,6 +4,7 @@ import pygame
 
 from model.map.grid import Grid
 from model.map.region import Region
+from model.simulation.mas_stats import MASEvolutionStats
 
 from .. import config
 
@@ -24,6 +25,7 @@ class SidebarRenderer:
         epoch: int,
         total_agents: int,
         speed_label: str,
+        mas_stats: MASEvolutionStats | None = None,
     ) -> None:
         self.__render_background()
         self.__render_header(epoch, total_agents, speed_label)
@@ -34,6 +36,8 @@ class SidebarRenderer:
             self.__render_hovered(hovered_cell)
 
         self.__render_controls()
+        if mas_stats and mas_stats.barrier_introduced:
+            self.__render_mas_stats(mas_stats)
 
     def __render_background(self) -> None:
         pygame.draw.rect(
@@ -67,6 +71,35 @@ class SidebarRenderer:
         y += 30
         self._screen.blit(
             self._hud_font.render(f"Speed: {speed_label}", True, config.WARNING_COLOR),
+            (x, y),
+        )
+
+    def __render_mas_stats(self, mas_stats: MASEvolutionStats) -> None:
+        y_start = self._screen.get_height() - 350
+        x = self._sidebar_x + config.SIDEBAR_MARGIN
+        y = y_start
+
+        self._screen.blit(
+            self._small_font.render("--- MAS Evolution ---", True, config.LABEL_COLOR),
+            (x, y),
+        )
+        y += 20
+        self._screen.blit(
+            self._hud_font.render(f"Fst: {mas_stats.fst:.3f}", True, config.TEXT_COLOR),
+            (x, y),
+        )
+        y += 28
+        self._screen.blit(
+            self._hud_font.render(
+                f"Bhattacharya: {mas_stats.bhattacharyya:.3f}", True, config.TEXT_COLOR
+            ),
+            (x, y),
+        )
+        y += 28
+        ratio = mas_stats.hybrid_fitness_ratio
+        color = config.HEALTH_COLOR if ratio >= 0.8 else config.WARNING_COLOR
+        self._screen.blit(
+            self._hud_font.render(f"Hybrid Fit: {ratio:.2f}", True, color),
             (x, y),
         )
 

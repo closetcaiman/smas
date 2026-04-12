@@ -2,6 +2,7 @@
 Simulation state handler.
 """
 
+from model.simulation.mas_stats import MASEvolutionStats
 from model.simulation.simulation import Simulation
 
 from .. import config
@@ -27,6 +28,7 @@ class SimulationState:
             self.__grid_height,
             self.__num_agents,
         )
+        self.__mas_stats = MASEvolutionStats()
         self.__last_step_time = 0
         self.__paused = False
         self.__speed_index = 1
@@ -44,6 +46,10 @@ class SimulationState:
     def step_count(self) -> int:
         return self.simulation.step_count
 
+    @property
+    def mas_stats(self) -> MASEvolutionStats:
+        return self.__mas_stats
+
     def reset(self) -> None:
         """Reset simulation to initial state."""
         self.__simulation = Simulation(
@@ -51,6 +57,7 @@ class SimulationState:
             self.__grid_height,
             self.__num_agents,
         )
+        self.__mas_stats = MASEvolutionStats()
         self.__last_step_time = 0
         self.__paused = False
         self.__speed_index = 1
@@ -65,6 +72,9 @@ class SimulationState:
             return False
         if current_time - self.__last_step_time >= self.__step_interval:
             self.__simulation.step()
+            if self.__mas_stats.barrier_introduced:
+                barrier_col = self.__grid_width // 2
+                self.__mas_stats.calculate_stats(self.grid, barrier_col)
             self.__last_step_time = current_time
             return True
         return False
@@ -91,6 +101,7 @@ class SimulationState:
         for row in range(grid_height):
             region = self.__simulation.grid._data[row][col]
             region.is_barrier = True
+        self.__mas_stats.record_barrier_introduction(self.step_count, col)
 
     @property
     def speed_label(self) -> str:
