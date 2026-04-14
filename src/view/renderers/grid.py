@@ -34,14 +34,18 @@ class GridRenderer:
         return self.__grid
 
     def render_background(self) -> None:
-        rect = pygame.Rect(
-            self.__offset_x - config.GRID_PADDING,
-            self.__offset_y - config.GRID_PADDING,
-            self.__grid_width_px + config.GRID_PADDING * 2,
-            self.__grid_height_px + config.GRID_PADDING * 2,
-        )
-        pygame.draw.rect(self.__screen, config.GRID_BG_COLOR, rect)
-        pygame.draw.rect(self.__screen, config.GRID_BORDER_COLOR, rect, 2)
+        for i in range(self.__grid._height):
+            for j in range(self.__grid._width):
+                pygame.draw.rect(
+                    self.__screen,
+                    self.__grid.color_at(j, i),
+                    pygame.Rect(
+                        self.__offset_x + j * self.__cell_size,
+                        self.__offset_y + i * self.__cell_size,
+                        self.__cell_size,
+                        self.__cell_size,
+                    ),
+                )
 
     def render_lines(self) -> None:
         for i in range(self.__grid._height + 1):
