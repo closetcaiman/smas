@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Tuple
 
 import pygame
 
+from model.map.map_image_sampler import MapImageSampler
 from model.simulation.mas_stats import MASEvolutionStats
 from model.simulation.simulation import Simulation
 
@@ -22,6 +23,7 @@ class SimulationController:
     def __init__(
         self,
         screen: pygame.Surface,
+        map_image_path: str,
         grid_width: int = config.DEFAULT_GRID_WIDTH,
         grid_height: int = config.DEFAULT_GRID_HEIGHT,
         num_agents: int = config.DEFAULT_AGENTS_PER_REGION,
@@ -30,8 +32,12 @@ class SimulationController:
         self.__grid_width = grid_width
         self.__grid_height = grid_height
         self.__num_agents = num_agents
+        self.__sampler = MapImageSampler(map_image_path)
+        self.__sampler.sample_grid(grid_width, grid_height)
 
-        self.__simulation = Simulation(grid_width, grid_height, num_agents)
+        self.__simulation = Simulation(
+            grid_width, grid_height, num_agents, self.__sampler
+        )
         self.__cell_size = self.__calculate_cell_size()
         self.__renderer = self.__create_renderer()
         self.__data_collector = DataCollector(self.__simulation.grid)
@@ -104,7 +110,7 @@ class SimulationController:
 
     def reset(self) -> None:
         self.__simulation = Simulation(
-            self.__grid_width, self.__grid_height, self.__num_agents
+            self.__grid_width, self.__grid_height, self.__num_agents, self.__sampler
         )
         self.__renderer = self.__create_renderer()
         self.__data_collector = DataCollector(self.__simulation.grid)

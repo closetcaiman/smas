@@ -6,12 +6,19 @@ from model.agent.agent import Agent
 from model.agent.genome.genome_factory import create_genome, crossover_genomes
 from model.map.food_type import FoodType
 from model.map.grid import Grid
+from model.map.map_image_sampler import MapImageSampler
 from model.map.region import Region
 
 
 class Simulation:
-    def __init__(self, grid_width: int, grid_height: int, num_agents_per_region: int):
-        self.grid = Grid(grid_width, grid_height)
+    def __init__(
+        self,
+        grid_width: int,
+        grid_height: int,
+        num_agents_per_region: int,
+        sampler: MapImageSampler,
+    ):
+        self.grid = Grid(sampler, grid_width, grid_height)
         regions = list(self.grid.regions)
         self._initialize_agents(num_agents_per_region, regions)
         self.step_count = 0

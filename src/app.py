@@ -1,3 +1,5 @@
+import os
+
 import pygame
 
 from controller.config import (
@@ -41,6 +43,9 @@ def main() -> None:
         grid_width=DEFAULT_GRID_WIDTH,
         grid_height=DEFAULT_GRID_HEIGHT,
         num_agents=DEFAULT_AGENTS_PER_REGION,
+        map_image_path=os.path.join(
+            os.path.dirname(__file__), "assets/sample-map-1.png"
+        ),
     )
 
     while True:
