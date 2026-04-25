@@ -182,6 +182,7 @@ class SimulationController:
         for region in self.__simulation.world.regions:
             if region.coordinates[0] == col:
                 region.is_barrier = True
+                region.agents.clear()
 
     def __speed_up(self) -> None:
         """Increase the simulation speed by decreasing the step interval."""
