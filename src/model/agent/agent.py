@@ -16,8 +16,7 @@ class Agent:
     genome: FullCombinedGenome
 
     def get_wanted_action(self) -> Action:
-        """
-        Returns the action that the agent wants to do.
+        """Returns the action that the agent wants to do.
         It is selected at random from possible actions
         with probability weighted by actor's preference.
         """

@@ -28,3 +28,4 @@ ignore-errors-in-generated-code = false
 # this is an empty table, meaning all errors are enabled by default
 
 # no `[[sub-config]]` entries are included, since there are none by default
+

@@ -1,5 +1,4 @@
-"""
-Input handler - processes keyboard and mouse events.
+"""Input handler - processes keyboard and mouse events.
 """
 
 from __future__ import annotations

@@ -1,5 +1,4 @@
-"""
-Agent renderer.
+"""Agent renderer.
 """
 
 import pygame

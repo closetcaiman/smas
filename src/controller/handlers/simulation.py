@@ -1,5 +1,4 @@
-"""
-Simulation state handler.
+"""Simulation state handler.
 """
 
 from model.simulation.mas_stats import MASEvolutionStats
@@ -9,8 +8,7 @@ from .. import config
 
 
 class SimulationState:
-    """
-    Manages simulation state and stepping.
+    """Manages simulation state and stepping.
     """
 
     def __init__(
@@ -101,6 +99,7 @@ class SimulationState:
         for row in range(grid_height):
             region = self.__simulation.grid._data[row][col]
             region.is_barrier = True
+            region.agents.clear()
         self.__mas_stats.record_barrier_introduction(self.step_count, col)
 
     @property

@@ -16,7 +16,7 @@ class App:
     def __init__(self) -> None:
         pygame.init()
         self._screen = pygame.display.set_mode(
-            (
+            size=(
                 DEFAULT_WINDOW_WIDTH,
                 DEFAULT_WINDOW_HEIGHT,
             )

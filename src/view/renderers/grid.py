@@ -1,5 +1,4 @@
-"""
-Grid renderer.
+"""Grid renderer.
 """
 
 import pygame

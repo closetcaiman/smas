@@ -1,5 +1,4 @@
-"""
-Controller configuration constants.
+"""Controller configuration constants.
 """
 
 DEFAULT_WINDOW_WIDTH = 1000

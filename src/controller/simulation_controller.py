@@ -1,17 +1,15 @@
-"""
-Simulation controller.
-"""
+"""Simulation controller."""
 
 from typing import TYPE_CHECKING, Tuple
 
 import pygame
 
+from controller.handlers.data_collector import DataCollector
 from model.map.map_image_sampler import MapImageSampler
 from model.simulation.mas_stats import MASEvolutionStats
 from model.simulation.simulation import Simulation
 
 from . import config
-from .handlers.data_collector import DataCollector
 from .handlers.input import InputHandler
 from .handlers.snapshot import SnapshotHandler
 
@@ -40,7 +38,6 @@ class SimulationController:
         )
         self.__cell_size = self.__calculate_cell_size()
         self.__renderer = self.__create_renderer()
-        self.__data_collector = DataCollector(self.__simulation.grid)
         self.__mas_stats = MASEvolutionStats()
 
         self.__fps = config.DEFAULT_FPS
@@ -63,9 +60,7 @@ class SimulationController:
             grid_area_height // self.__grid_height,
         )
 
-    def __create_renderer(self) -> "Renderer":
-        from view.renderer import Renderer
-
+    def __create_renderer(self) -> Renderer:
         return Renderer(self.__screen, self.__simulation.grid, self.__cell_size)
 
     @property
@@ -113,7 +108,6 @@ class SimulationController:
             self.__grid_width, self.__grid_height, self.__num_agents, self.__sampler
         )
         self.__renderer = self.__create_renderer()
-        self.__data_collector = DataCollector(self.__simulation.grid)
         self.__mas_stats = MASEvolutionStats()
         self.__selected_cell = None
         self.__hovered_cell = None
@@ -123,7 +117,9 @@ class SimulationController:
         self.__last_step_time = 0
 
     def save(self) -> None:
-        data = self.__data_collector.collect(self.__simulation.step_count)
+        data = DataCollector.collect(
+            self.__simulation.grid, self.__simulation.step_count
+        )
         self.__snapshot_handler.save(self.__simulation.step_count, data, self.__screen)
 
     def quit(self) -> None:

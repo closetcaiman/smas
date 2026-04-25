@@ -1,5 +1,4 @@
-"""
-Snapshot handler - exports data to files.
+"""Snapshot handler - exports data to files.
 """
 
 import json
