@@ -1,58 +1,60 @@
-import random
+from random import randrange, shuffle
 
 from model.agent.action import Action
-from model.map.food_type import FoodType
+from model.world import FoodType
 
-from .full_combined_genome import FullCombinedGenome
+from .full_genome import FullGenome
 from .int_genome import IntGenome
 from .sequence_genome import SequenceGenome
 
-# TODO: this should be updated with mutation and crossover logic:
-# - possibly under some class that handles breeding and genome management
-# - create_genomes should be around simulation.py (as it is a starting point)
 
+class GenomeFactory:
+    """
+    Factory class for creating new genomes with randomized traits for agents in the simulation.
 
-def create_genome() -> FullCombinedGenome:
-    return FullCombinedGenome(
-        min_energy_to_reproduce=IntGenome(random.randrange(40, 80), 16),
-        preferred_food=SequenceGenome(
-            _shuffled(
-                [FoodType.GRASS.value, FoodType.TALL_GRASS.value, FoodType.FRUIT.value]
+    Methods:
+        create_genome() -> FullGenome: Generates a new FullGenome instance with randomized traits for an agent.
+
+    """
+
+    @staticmethod
+    def create_genome() -> FullGenome:
+        """
+        Generate a new FullGenome instance with randomized traits for an agent.
+
+        Returns:
+            FullGenome: A new genome instance with randomized traits for an agent.
+
+        """
+        return FullGenome(
+            min_energy_to_reproduce=IntGenome(randrange(40, 80), 16),
+            preferred_food=SequenceGenome(
+                GenomeFactory.__shuffle(
+                    [
+                        FoodType.GRASS.value,
+                        FoodType.TALL_GRASS.value,
+                        FoodType.FRUIT.value,
+                    ]
+                ),
+                6,
+                2,
             ),
-            6,
-            2,
-        ),
-        preferred_action=SequenceGenome(
-            _shuffled([Action.EAT.value, Action.REPRODUCE.value, Action.MIGRATE.value]),
-            6,
-            2,
-        ),
-        ideal_temperature=IntGenome(random.randrange(0, 28), 8),
-        temperature_tolerance=IntGenome(random.randrange(4, 10), 8),
-        metabolic_rate=IntGenome(random.randrange(10, 30), 6),
-        maturity_age=IntGenome(random.randrange(20, 40), 16),
-        size=IntGenome(random.randrange(20, 60), 8),
-        breeding_interval=IntGenome(random.randrange(2, 20), 8),
-    )
+            preferred_action=SequenceGenome(
+                GenomeFactory.__shuffle(
+                    [Action.EAT.value, Action.REPRODUCE.value, Action.MIGRATE.value]
+                ),
+                6,
+                2,
+            ),
+            ideal_temperature=IntGenome(randrange(0, 28), 8),
+            temperature_tolerance=IntGenome(randrange(4, 10), 8),
+            metabolic_rate=IntGenome(randrange(10, 30), 6),
+            maturity_age=IntGenome(randrange(20, 40), 16),
+            size=IntGenome(randrange(20, 60), 8),
+            breeding_interval=IntGenome(randrange(2, 20), 8),
+        )
 
-
-def _shuffled(values: list) -> list:
-    random.shuffle(values)
-    return values
-
-
-def crossover_genomes(
-    a: FullCombinedGenome, b: FullCombinedGenome
-) -> FullCombinedGenome:
-    a_dna = a.to_dna()
-    b_dna = b.to_dna()
-
-    if random.random() > 0.5:
-        a_dna, b_dna = b_dna, a_dna
-
-    cut1 = round(random.uniform(0, len(a_dna) // 2))
-    cut2 = round(random.uniform(cut1, len(a_dna)))
-
-    child_genome = create_genome()
-    child_genome.from_dna(a_dna[:cut1] + b_dna[cut1:cut2] + a_dna[cut2:])
-    return child_genome
+    @staticmethod
+    def __shuffle(lst: list) -> list:
+        shuffle(lst)
+        return lst

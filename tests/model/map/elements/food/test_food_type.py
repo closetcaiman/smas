@@ -1,4 +1,4 @@
-from model.map.food_type import FoodType
+from model.world import FoodType
 
 
 class TestFoodType:

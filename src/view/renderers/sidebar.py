@@ -2,42 +2,55 @@ from typing import Tuple
 
 import pygame
 
-from model.map.grid import Grid
-from model.map.region import Region
-from model.simulation.mas_stats import MASEvolutionStats
+from model.world import Region, World
+from view.types import RenderContext
+from view.viewport import Viewport
 
 from .. import config
 
 
 class SidebarRenderer:
-    def __init__(self, screen: pygame.Surface, grid: Grid, sidebar_x: int) -> None:
-        self._screen = screen
-        self._grid = grid
-        self._sidebar_x = sidebar_x
+    """Renders the sidebar with simulation information and controls."""
+
+    def __init__(self, viewport: Viewport, world: World) -> None:
+        """
+        Initialize the sidebar renderer.
+
+        Args:
+            viewport: The viewport to use for rendering.
+            world: The world to render information about.
+
+        Returns:
+            None
+
+        """
+        self._screen = viewport.screen
+        self._world = world
+        self._sidebar_x = viewport.sidebar_x
         self._title_font = pygame.font.Font(None, config.TITLE_FONT_SIZE)
         self._hud_font = pygame.font.Font(None, config.HUD_FONT_SIZE)
         self._small_font = pygame.font.Font(None, config.SMALL_FONT_SIZE)
 
     def render(
         self,
-        hovered_cell: Tuple[int, int] | None,
-        selected_cell: Tuple[int, int] | None,
-        epoch: int,
-        total_agents: int,
-        speed_label: str,
-        mas_stats: MASEvolutionStats | None = None,
+        context: RenderContext,
     ) -> None:
-        self.__render_background()
-        self.__render_header(epoch, total_agents, speed_label)
+        """
+        Render the sidebar with current simulation information and controls.
 
-        if selected_cell:
-            self.__render_selected(selected_cell)
-        elif hovered_cell:
-            self.__render_hovered(hovered_cell)
+        Overrides:
+            UIRenderer.render: Draws the sidebar background, header information (epoch, total agents, speed), and controls.
+            If a cell is selected or hovered, it also renders detailed information about that cell and its region.
+        """
+        self.__render_background()
+        self.__render_header(context.epoch, context.total_agents, context.speed_label)
+
+        if context.selected_cell:
+            self.__render_selected(context.selected_cell)
+        elif context.hovered_cell:
+            self.__render_hovered(context.hovered_cell)
 
         self.__render_controls()
-        if mas_stats and mas_stats.barrier_introduced:
-            self.__render_mas_stats(mas_stats)
 
     def __render_background(self) -> None:
         pygame.draw.rect(
@@ -74,35 +87,6 @@ class SidebarRenderer:
             (x, y),
         )
 
-    def __render_mas_stats(self, mas_stats: MASEvolutionStats) -> None:
-        y_start = self._screen.get_height() - 350
-        x = self._sidebar_x + config.SIDEBAR_MARGIN
-        y = y_start
-
-        self._screen.blit(
-            self._small_font.render("--- MAS Evolution ---", True, config.LABEL_COLOR),
-            (x, y),
-        )
-        y += 20
-        self._screen.blit(
-            self._hud_font.render(f"Fst: {mas_stats.fst:.3f}", True, config.TEXT_COLOR),
-            (x, y),
-        )
-        y += 28
-        self._screen.blit(
-            self._hud_font.render(
-                f"Bhattacharya: {mas_stats.bhattacharyya:.3f}", True, config.TEXT_COLOR
-            ),
-            (x, y),
-        )
-        y += 28
-        ratio = mas_stats.hybrid_fitness_ratio
-        color = config.HEALTH_COLOR if ratio >= 0.8 else config.WARNING_COLOR
-        self._screen.blit(
-            self._hud_font.render(f"Hybrid Fit: {ratio:.2f}", True, color),
-            (x, y),
-        )
-
     def __render_controls(self) -> None:
         x = self._sidebar_x + config.SIDEBAR_MARGIN
         y = self._screen.get_height() - 200
@@ -123,12 +107,12 @@ class SidebarRenderer:
 
     def __render_hovered(self, cell: Tuple[int, int]) -> None:
         x, y = cell
-        region = self._grid._data[y][x]
+        region = self._world.region_at(x, y)
         self.__render_cell_info(x, y, region, 240)
 
     def __render_selected(self, cell: Tuple[int, int]) -> None:
         x, y = cell
-        region = self._grid._data[y][x]
+        region = self._world.region_at(x, y)
         pos_x = self._sidebar_x + config.SIDEBAR_MARGIN
         pos_y = 240
         self._screen.blit(

@@ -1,4 +1,4 @@
-from model.map.food_resources import FoodResources
+from model.world import FoodResources
 
 
 class TestFoodResources:

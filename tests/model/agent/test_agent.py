@@ -1,11 +1,11 @@
+from model.agent import GenomeFactory
 from model.agent.action import Action
 from model.agent.agent import Agent
-from model.agent.genome.genome_factory import create_genome
 
 
 class TestAgent:
     def test_initialization(self):
-        genome = create_genome()
+        genome = GenomeFactory.create_genome()
         agent = Agent(
             energy=100,
             age=0,
@@ -18,7 +18,7 @@ class TestAgent:
         assert agent.temperature == 20
 
     def test_get_wanted_action_returns_valid_action(self):
-        genome = create_genome()
+        genome = GenomeFactory.create_genome()
         agent = Agent(
             energy=100,
             age=50,
@@ -30,7 +30,7 @@ class TestAgent:
         assert action in [Action.EAT, Action.MIGRATE, Action.REPRODUCE]
 
     def test_step_simulation_decreases_energy(self):
-        genome = create_genome()
+        genome = GenomeFactory.create_genome()
         agent = Agent(
             energy=100,
             age=0,
@@ -45,7 +45,7 @@ class TestAgent:
         assert agent.time_since_last_breeding == 1
 
     def test_apply_reproduction_cost(self):
-        genome = create_genome()
+        genome = GenomeFactory.create_genome()
         initial_energy = 100
         agent = Agent(
             energy=initial_energy,

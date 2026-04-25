@@ -1,27 +1,71 @@
 import random
 from typing import List
 
+from controller.handlers.sampling import WorldMapSample
+from controller.mediator import SimulationMediator
+from model.agent import Breeder, GenomeFactory
 from model.agent.action import Action
 from model.agent.agent import Agent
-from model.agent.genome.genome_factory import create_genome, crossover_genomes
-from model.map.food_type import FoodType
-from model.map.grid import Grid
-from model.map.map_image_sampler import MapImageSampler
-from model.map.region import Region
+from model.world import FoodType, Region, World
 
 
 class Simulation:
+    """
+    Class representing the entire simulation, including the grid of regions and the agents within them.
+
+    The Simulation class is responsible for initializing the world state, managing the progression of time (epochs),
+    and coordinating the actions of agents within their respective regions. It interacts with the SimulationMediator
+    to record significant events such as births and deaths for data tracking and analysis.
+
+    Methods:
+        step: Advances the simulation by one epoch, performing all agent actions and updating the world state.
+
+    """
+
     def __init__(
         self,
         grid_width: int,
         grid_height: int,
         num_agents_per_region: int,
-        sampler: MapImageSampler,
-    ):
-        self.grid = Grid(sampler, grid_width, grid_height)
-        regions = list(self.grid.regions)
-        self.__initialize_agents(num_agents_per_region, regions)
-        self.step_count = 0
+        controller_mediator: SimulationMediator,
+        sample: WorldMapSample,
+    ) -> None:
+        """
+        Initialize the simulation with a grid of regions and agents.
+
+        The simulation is initialized with a grid of specified width and height, where each cell represents a region.
+        Each region is populated with a specified number of agents, and the initial state of the world is recorded
+        in the simulation data bank for historical tracking and analysis.
+
+        Args:
+            grid_width (int): The width of the grid (number of columns).
+            grid_height (int): The height of the grid (number of rows).
+            num_agents_per_region (int): The number of agents to initialize in each region.
+            controller_mediator (SimulationMediator): The mediator for communication between simulation components.
+            sample (WorldMapSample): The sampled seed data for initializing the world state.
+
+        Returns:
+            None
+
+        """
+        self.world = World(grid_width, grid_height, sample)
+        self.__epoch = 0
+        self.mediator = controller_mediator
+
+        self.__initialize_agents(num_agents_per_region, list(self.world.regions))
+
+    @property
+    def epoch(self) -> int:
+        """Get the current epoch of the simulation."""
+        return self.__epoch
+
+    def step(self):
+        """Advance the simulation by one epoch, performing all agent actions and updating the world state."""
+        self.__epoch += 1
+        self.mediator.databank.record_epoch(self.world, self.__epoch)
+        for region in self.world.regions:
+            self.__perform_agent_actions(region)
+            region.step_simulation()
 
     def __initialize_agents(self, num_agents_per_region: int, regions: List[Region]):
         for region in regions:
@@ -32,31 +76,15 @@ class Simulation:
                         energy=random.randrange(100, 150),
                         age=0,
                         time_since_last_breeding=0,
-                        genome=create_genome(),
+                        genome=GenomeFactory.create_genome(),
                         temperature=20,
                     )
                 )
             region.agents = agents
 
-    def step(self):
-        self.step_count += 1
-        return self.__step()
-
-    def __step(self):
-        stats: dict[str, int] = {}
-        for region in self.grid.regions:
-            region_stats = self.__perform_agent_actions(region)
-            stats["born"] = stats.get("born", 0) + region_stats.get("born", 0)
-            stats["dead"] = stats.get("dead", 0) + region_stats.get("dead", 0)
-            region.step_simulation()
-        return {
-            "step": self.step_count,
-            "born": stats.get("born", 0),
-            "dead": stats.get("dead", 0),
-        }
-
-    def __perform_agent_actions(self, region: Region) -> dict[str, int]:
-        """Perform actions for all agents in the region and return stats on births and deaths.
+    def __perform_agent_actions(self, region: Region) -> None:
+        """
+        Perform actions for all agents in the region and return stats on births and deaths.
 
         The method categorizes agents based on their desired actions (reproduce, migrate, eat) and processes each category accordingly:
         - Reproducing agents are paired up to create new agents through the `__breed_agents` method.
@@ -86,20 +114,14 @@ class Simulation:
             agent for agent in region.agents if agent.get_wanted_action() == Action.EAT
         ]
 
-        new_agents = []
-        if len(reproducing_agents) > 1:
-            new_agents = self.__breed_agents(reproducing_agents)
-            region.agents.extend(new_agents)
-
+        self.__breed_agents(region, reproducing_agents)
         self.__migrate_agents(region, migrating_agents)
         self.__feed_agents(region, eating_agents)
+        self.__remove_dead_agents(region)
 
-        dead_agents = self.__remove_dead_agents(region)
-
-        return {"born": len(new_agents), "dead": len(dead_agents)}
-
-    def __breed_agents(self, reproducing_agents: List[Agent]) -> List[Agent]:
-        """Breed agents in pairs and return the list of new agents.
+    def __breed_agents(self, region: Region, reproducing_agents: List[Agent]) -> None:
+        """
+        Breed agents in pairs.
 
         The method takes a list of agents that want to reproduce and creates new agents by pairing them up.
         The list of reproducing agents is shuffled randomly to ensure random pairing.
@@ -112,12 +134,16 @@ class Simulation:
         - Temperature: The same as the first parent agent's temperature.
 
         Args:
+            region (Region): The region where the new agents will be added.
             reproducing_agents (List[Agent]): A list of agents that want to reproduce.
 
         Returns:
-            List[Agent]: A list of new agents created from the reproducing agents.
+            None
 
         """
+        if len(reproducing_agents) < 2:
+            return
+
         random.shuffle(reproducing_agents)
         a = reproducing_agents[: len(reproducing_agents) // 2]
         b = reproducing_agents[len(a) :]
@@ -130,14 +156,21 @@ class Simulation:
                     energy=(a[i].energy + b[i].energy) // 2,
                     age=0,
                     time_since_last_breeding=0,
-                    genome=crossover_genomes(a[i].genome, b[i].genome),
+                    genome=Breeder.crossover_genomes(a[i].genome, b[i].genome),
                     temperature=a[i].temperature,
                 )
             )
-        return new_agents
 
-    def __migrate_agents(self, current_region: Region, migrating_agents: List[Agent]):
-        """Try to migrate each agent to a random neighboring region if they have enough energy.
+        region.agents.extend(new_agents)
+
+        # Notify the mediator about the births for logging and data tracking
+        self.mediator.record_birth(self.epoch, len(new_agents), region.coordinates)
+
+    def __migrate_agents(
+        self, current_region: Region, migrating_agents: List[Agent]
+    ) -> None:
+        """
+        Try to migrate each agent to a random neighboring region if they have enough energy.
 
         The migration cost is the sum of the current region's `r_out.migrate_out_cost`
         and the target region's `r_in.migrate_in_cost`. The agent's energy cannot
@@ -166,8 +199,9 @@ class Simulation:
                 current_region.agents.remove(agent)
                 selected_region.agents.append(agent)
 
-    def __feed_agents(self, region: Region, eating_agents: List[Agent]):
-        """Feed agents based on their genome preferences and available food in the region.
+    def __feed_agents(self, region: Region, eating_agents: List[Agent]) -> None:
+        """
+        Feed agents based on their genome preferences and available food in the region.
 
         Each agent has a list of preferred food types in their genome.
         The method iterates through each eating agent and checks their preferences in order.
@@ -199,8 +233,9 @@ class Simulation:
                 ):
                     agent.energy += FoodType.FRUIT.energy_amount()
 
-    def __remove_dead_agents(self, region: Region) -> List[Agent]:
-        """Remove agents with energy <= 0 from the region and return them.
+    def __remove_dead_agents(self, region: Region) -> None:
+        """
+        Remove agents with energy <= 0 from the region and return them.
 
         The method iterates through all agents in the region and separates them into two lists:
         - `living_agents` for those with energy greater than 0,
@@ -233,5 +268,8 @@ class Simulation:
             living_agents.sort(key=lambda agent: -agent.energy)
             living_agents = living_agents[: region.max_agents]
             dead_agents.extend(living_agents[region.max_agents :])
+
         region.agents = living_agents
-        return dead_agents
+
+        # Notify the mediator about the deaths for logging and data tracking
+        self.mediator.record_death(self.epoch, len(dead_agents), region.coordinates)

@@ -1,45 +1,45 @@
-"""Input handler - processes keyboard and mouse events.
-"""
-
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple, cast
 
 import pygame
 
+from controller.types import UserAction
+
 if TYPE_CHECKING:
-    from controller.simulation_controller import SimulationController
+    pass
 
 
 class InputHandler:
-    """Handles keyboard and mouse input."""
+    """Translates Pygame events into high-level commands."""
 
-    def __init__(self, ctrl: "SimulationController") -> None:
-        self.__ctrl = ctrl
-
-    def process(self) -> None:
-        """Process all events."""
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.__ctrl.quit()
-            elif event.type == pygame.KEYDOWN:
-                self.__handle_key(event.key)
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == pygame.BUTTON_LEFT:
-                    self.__ctrl.handle_click(event.pos)
-            elif event.type == pygame.MOUSEMOTION:
-                self.__ctrl.update_hover(event.pos)
-
-    def __handle_key(self, key: int) -> None:
-        handlers = {
-            pygame.K_ESCAPE: "quit",
-            pygame.K_q: "quit",
-            pygame.K_SPACE: "toggle_pause",
-            pygame.K_r: "reset",
-            pygame.K_s: "save",
-            pygame.K_b: "place_barrier",
-            pygame.K_UP: "speed_up",
-            pygame.K_DOWN: "speed_down",
+    def __init__(self) -> None:
+        """Initialize the input handler, including key mappings and state variables."""
+        self.__key_map = {
+            pygame.K_ESCAPE: UserAction.QUIT,
+            pygame.K_q: UserAction.QUIT,
+            pygame.K_SPACE: UserAction.TOGGLE_PAUSE,
+            pygame.K_r: UserAction.RESET,
+            pygame.K_b: UserAction.PLACE_BARRIER,
+            pygame.K_UP: UserAction.SPEED_UP,
+            pygame.K_DOWN: UserAction.SPEED_DOWN,
         }
-        if handler := handlers.get(key):
-            getattr(self.__ctrl, handler)()
+
+    def get_events(self):
+        """Yield actions, clicks, or mouse movements."""
+        for event in pygame.event.get():
+            match event.type:
+                case pygame.QUIT:
+                    yield (UserAction.QUIT, None)
+                case pygame.KEYDOWN:
+                    if action := self.__key_map.get(event.key):
+                        yield (action, None)
+                case pygame.MOUSEBUTTONDOWN:
+                    if event.button == pygame.BUTTON_LEFT:
+                        pos = cast(Tuple[int, int], event.pos)
+                        if pos is not None:
+                            yield (UserAction.CLICK, pos)
+                case pygame.MOUSEMOTION:
+                    pos = cast(Tuple[int, int], event.pos)
+                    if pos is not None:
+                        yield (UserAction.HOVER, pos)

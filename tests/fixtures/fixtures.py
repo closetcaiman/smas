@@ -3,18 +3,22 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
+from controller.handlers import WorldMapSample
+from controller.mediator import SimulationMediator
+
 
 @pytest.fixture
-def mock_sampler():
-    mock = MagicMock()
+def mock_sample():
+    data = np.zeros((5, 5, 3), dtype=np.uint8)
+    data[:, :, 0] = 120
+    data[:, :, 1] = 100
+    data[:, :, 2] = 255
+    return WorldMapSample(hsv_data=data)
 
-    fake_hsv = np.full((5, 5, 3), [120, 200, 150], dtype=np.uint8)
-    mock.hsv = fake_hsv
 
-    mock.hue.side_effect = lambda x, y: int(mock.hsv[y, x, 0])
-    mock.saturation.side_effect = lambda x, y: int(mock.hsv[y, x, 1])
-    mock.value.side_effect = lambda x, y: int(mock.hsv[y, x, 2])
-
-    mock.rgb.return_value = [34, 139, 34]
-
-    return mock
+@pytest.fixture
+def mock_mediator():
+    mock_db = MagicMock()
+    mock_logger = MagicMock()
+    mediator = SimulationMediator(databank=mock_db, logger=mock_logger)
+    return mediator

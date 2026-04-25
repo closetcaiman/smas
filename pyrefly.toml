@@ -1,7 +1,7 @@
 ###### configuring what to type check and where to import from
 
 # check all files in "."
-project-includes = ["src/"]
+project-includes = ["src/", "tests/"]
 # exclude dotfiles
 project-excludes = [
     "**/.[!/.]*",

@@ -1,42 +1,52 @@
-"""Agent renderer.
-"""
-
 import pygame
 
-from model.map.grid import Grid
-from model.map.region import Region
+from model.world import Region, World
+from view.renderers.ui_renderer import UIRenderer
+from view.types import RenderContext
+from view.viewport import Viewport
 
 from .. import config
 
 
-class AgentRenderer:
+class AgentRenderer(UIRenderer):
     """Renders agents."""
 
     def __init__(
         self,
-        screen: pygame.Surface,
-        grid: Grid,
-        cell_size: int,
-        offset_x: int,
-        offset_y: int,
+        viewport: Viewport,
+        world: World,
     ) -> None:
-        self.__screen = screen
-        self.__grid = grid
-        self.__cell_size = cell_size
-        self.__offset_x = offset_x
-        self.__offset_y = offset_y
+        """
+        Initialize the agent renderer.
 
-    def render_all(self) -> None:
-        for row in self.__grid._data:
-            for region in row:
-                if region.agents and not region.is_barrier:
-                    self.__render_agent(region)
+        Args:
+            viewport: The viewport for rendering.
+            world: The world to render.
+            cell_size: The size of each grid cell.
+            offset_x: The x-coordinate offset for rendering the grid.
+            offset_y: The y-coordinate offset for rendering the grid.
+
+        """
+        self.__screen = viewport.screen
+        self.__world = world
+        self.__cell_size = viewport.cell_size
+        self.__offset_x = viewport.offset[0]
+        self.__offset_y = viewport.offset[1]
+
+    def render(self, context: RenderContext) -> None:
+        """
+        Render all agents on the grid.
+
+        Overrides:
+            UIRenderer.render: Iterates through all regions in the world and renders an agent for
+                each region that contains agents and is not a barrier. The agent's appearance is determined by the
+        """
+        for region in self.__world.regions:
+            if region.agents and not region.is_barrier:
+                self.__render_agent(region)
 
     def __render_agent(self, region: Region) -> None:
-        coords = self.__get_coords(region)
-        if coords is None:
-            return
-        cell_x, cell_y = coords
+        cell_x, cell_y = region.coordinates
         center_x = self.__offset_x + cell_x * self.__cell_size + self.__cell_size // 2
         center_y = self.__offset_y + cell_y * self.__cell_size + self.__cell_size // 2
 
@@ -96,10 +106,3 @@ class AgentRenderer:
             * 175
         )
         return (max(0, min(255, r)), max(0, min(255, g)), max(0, min(255, b)))
-
-    def __get_coords(self, region: Region) -> tuple | None:
-        for y, row in enumerate(self.__grid._data):
-            for x, r in enumerate(row):
-                if r is region:
-                    return (x, y)
-        return None

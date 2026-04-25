@@ -1,8 +1,12 @@
 import dataclasses
 
+from model.world.elements.world_element import WorldElement
+
 
 @dataclasses.dataclass
-class FoodResources:
+class FoodResources(WorldElement):
+    """Represents the food resources available in a region, including grass, tall grass, and fruit."""
+
     grass_amount: int
     grass_max_amount: int
     grass_growth: int
@@ -16,6 +20,13 @@ class FoodResources:
     fruit_growth: int
 
     def step_simulation(self) -> None:
+        """
+        Perform one step of the simulation for this food resource, including growth of grass, tall grass, and fruit.
+
+        Ovverrides:
+            WorldElement.step_simulation: Updates the amounts of grass, tall grass,
+                and fruit based on their respective growth rates, ensuring that the amounts do not exceed their maximum limits.
+        """
         self.grass_amount = min(
             self.grass_amount + self.grass_growth, self.grass_max_amount
         )
