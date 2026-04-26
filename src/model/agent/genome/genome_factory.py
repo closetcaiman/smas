@@ -3,6 +3,7 @@ from random import randrange, shuffle
 from model.agent.action import Action
 from model.world import FoodType
 
+from . import config as cfg
 from .full_genome import FullGenome
 from .int_genome import IntGenome
 from .sequence_genome import SequenceGenome
@@ -27,7 +28,14 @@ class GenomeFactory:
 
         """
         return FullGenome(
-            min_energy_to_reproduce=IntGenome(randrange(40, 80), 16),
+            min_energy_to_reproduce=IntGenome(
+                randrange(
+                    cfg.MIN_ENERGY_TO_REPRODUCE_LOW, cfg.MIN_ENERGY_TO_REPRODUCE_HIGH
+                ),
+                16,
+                cfg.MIN_ENERGY_TO_REPRODUCE_LOW,
+                cfg.MIN_ENERGY_TO_REPRODUCE_HIGH,
+            ),
             preferred_food=SequenceGenome(
                 GenomeFactory.__shuffle(
                     [
@@ -46,12 +54,41 @@ class GenomeFactory:
                 6,
                 2,
             ),
-            ideal_temperature=IntGenome(randrange(0, 28), 8),
-            temperature_tolerance=IntGenome(randrange(4, 10), 8),
-            metabolic_rate=IntGenome(randrange(10, 30), 6),
-            maturity_age=IntGenome(randrange(20, 40), 16),
-            size=IntGenome(randrange(20, 60), 8),
-            breeding_interval=IntGenome(randrange(2, 20), 8),
+            ideal_temperature=IntGenome(
+                randrange(cfg.IDEAL_TEMPERATURE_LOW, cfg.IDEAL_TEMPERATURE_HIGH),
+                8,
+                cfg.IDEAL_TEMPERATURE_LOW,
+                cfg.IDEAL_TEMPERATURE_HIGH,
+            ),
+            temperature_tolerance=IntGenome(
+                randrange(
+                    cfg.TEMPERATURE_TOLERANCE_LOW, cfg.TEMPERATURE_TOLERANCE_HIGH
+                ),
+                8,
+                cfg.TEMPERATURE_TOLERANCE_LOW,
+                cfg.TEMPERATURE_TOLERANCE_HIGH,
+            ),
+            metabolic_rate=IntGenome(
+                randrange(cfg.METABOLIC_RATE_LOW, cfg.METABOLIC_RATE_HIGH),
+                6,
+                cfg.METABOLIC_RATE_LOW,
+                cfg.METABOLIC_RATE_HIGH,
+            ),
+            maturity_age=IntGenome(
+                randrange(cfg.MATURITY_AGE_LOW, cfg.MATURITY_AGE_HIGH),
+                16,
+                cfg.MATURITY_AGE_LOW,
+                cfg.MATURITY_AGE_HIGH,
+            ),
+            size=IntGenome(
+                randrange(cfg.SIZE_LOW, cfg.SIZE_HIGH), 8, cfg.SIZE_LOW, cfg.SIZE_HIGH
+            ),
+            breeding_interval=IntGenome(
+                randrange(cfg.BREEDING_INTERVAL_LOW, cfg.BREEDING_INTERVAL_HIGH),
+                8,
+                cfg.BREEDING_INTERVAL_LOW,
+                cfg.BREEDING_INTERVAL_HIGH,
+            ),
         )
 
     @staticmethod
