@@ -22,6 +22,8 @@ class IntGenome(Genome):
 
     value: int
     length: int
+    min: int = 0
+    max: int = 9999
 
     def from_dna(self, dna: str) -> None:
         """
@@ -38,7 +40,9 @@ class IntGenome(Genome):
 
         """
         assert len(dna) == self.length
-        self.value = int(dna, 2)
+        # mutations may have flipped a bit that changed the value to be outside the accepted range
+        # we need to crop it back
+        self.value = min(max(int(dna, 2), self.min), self.max)
 
     def to_dna(self) -> str:
         """
