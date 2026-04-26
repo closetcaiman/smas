@@ -44,14 +44,10 @@ class SimulationDataBank:
     def record_epoch(self, world_state: World, epoch: int) -> None:
         """Record the state of the world at a specific epoch."""
         epoch_data = self.__initialize_data(world_state, epoch)
-        print(
-            f"len of simulation history before recording: {len(self.simulation_history)}"
-        )
-        # 2. Update RAM Cache
+
         self.simulation_history[epoch] = epoch_data
         self.epoch_keys.append(epoch)
 
-        # 3. If we hit the limit, flush the OLDEST to Parquet and remove from RAM
         if len(self.epoch_keys) > self.__active_limit:
             oldest_epoch = self.epoch_keys.popleft()
             data_to_flush = self.simulation_history.pop(oldest_epoch)
@@ -129,7 +125,6 @@ class SimulationDataBank:
         rows = []
         epoch = data["epoch"]
 
-        # Non-destructive iteration
         for coords, region in data["region_data"].items():
             base_row: dict[str, int | float | str] = {
                 "epoch": epoch,
