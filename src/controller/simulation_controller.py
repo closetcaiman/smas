@@ -1,5 +1,7 @@
 """Simulation controller."""
 
+from datetime import datetime
+from pathlib import Path
 from typing import Tuple
 
 import pygame
@@ -51,7 +53,7 @@ class SimulationController:
         )
 
         self.__mediator = SimulationMediator(
-            databank=SimulationDataBank(),
+            databank=SimulationDataBank(storage_dir=self.__get_simulation_run_name()),
         )
 
         self.__simulation = Simulation(
@@ -222,3 +224,8 @@ class SimulationController:
                 self.__hovered_cell = None
         else:
             self.__hovered_cell = None
+
+    def __get_simulation_run_name(self) -> Path:
+        """Generate a unique name for the current simulation run based on the timestamp."""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        return Path(config.RESULTS_DIR, f"simulation_{timestamp}")

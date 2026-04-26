@@ -7,7 +7,9 @@ requires-python = ">=3.12"
 dependencies = [
     "numpy>=2.4.4",
     "pygame>=2.6.0",
-    "pillow>=12.2.0"
+    "pillow>=12.2.0",
+    "pandas>=3.0.2",
+    "pyarrow>=24.0.0",
 ]
 
 [dependency-groups]

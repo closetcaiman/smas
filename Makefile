@@ -19,10 +19,16 @@ run-simulation:
 	@echo "🚀 Running simulation..."
 	@uv run python src/main.py
 
-
-# ------------------------
-# Development
-# ------------------------
+clean-results:
+	@echo "🧹 Cleaning results directory..."
+	@echo "⚠️  This will permanently delete all simulation results. Are you sure? (y/N)"
+	@read -n 1 -s answer && echo && if [ "$$answer" = "y" ] || [ "$$answer" = "Y" ]; then \
+		rm -rf results; \
+		echo "✅ Results directory cleaned."; \
+	else \
+		echo "Aborted."; \
+	fi
+	
 
 # ------------------------
 # Dependency installation
