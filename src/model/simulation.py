@@ -64,8 +64,9 @@ class Simulation:
         self.__epoch += 1
         self.mediator.databank.record_epoch(self.world, self.__epoch)
         for region in self.world.regions:
-            self.__perform_agent_actions(region)
-            region.step_simulation()
+            if not region.is_barrier:
+                self.__perform_agent_actions(region)
+                region.step_simulation()
 
     def __initialize_agents(self, num_agents_per_region: int, regions: List[Region]):
         for region in regions:
@@ -190,6 +191,7 @@ class Simulation:
                 r
                 for r in current_region.neighbors
                 if current_region.migrate_out_cost + r.migrate_in_cost < agent.energy
+                and not r.is_barrier
             ]
             if len(available_regions) > 0:
                 selected_region = random.choice(available_regions)

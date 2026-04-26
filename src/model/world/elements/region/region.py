@@ -42,3 +42,12 @@ class Region(WorldElement):
         for agent in self.agents:
             agent.temperature = self.temperature
             agent.step_simulation()
+
+    def make_barrier(self) -> None:
+        """
+        Convert this region into a barrier, making it impassable for agents.
+
+        This method sets the is_barrier flag to True and clears any agents present in the region.
+        """
+        self.is_barrier = True
+        self.agents.clear()

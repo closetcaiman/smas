@@ -107,12 +107,12 @@ class SidebarRenderer:
 
     def __render_hovered(self, cell: Tuple[int, int]) -> None:
         x, y = cell
-        region = self._world.region_at(x, y)
+        region = self._world.region_at(y, x)
         self.__render_cell_info(x, y, region, 240)
 
     def __render_selected(self, cell: Tuple[int, int]) -> None:
         x, y = cell
-        region = self._world.region_at(x, y)
+        region = self._world.region_at(y, x)
         pos_x = self._sidebar_x + config.SIDEBAR_MARGIN
         pos_y = 240
         self._screen.blit(
