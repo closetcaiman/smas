@@ -46,12 +46,16 @@ class Breeder:
         genome_str = a_dna[:cut1] + b_dna[cut1:cut2] + a_dna[cut2:]
 
         if random() > 0.95:
-            mutation_position = floor(uniform(0, len(genome_str)))
-            genome_str = (
-                genome_str[:mutation_position]
-                + ("0" if genome_str[mutation_position] == "1" else "1")
-                + genome_str[mutation_position + 1 :]
-            )
+            genome_str = Breeder.__flip_bits_mutation(genome_str)
 
         child_genome.from_dna(genome_str)
         return child_genome
+
+    @staticmethod
+    def __flip_bits_mutation(genome_str: str):
+        mutation_position = floor(uniform(0, len(genome_str)))
+        return (
+                genome_str[:mutation_position]
+                + ("0" if genome_str[mutation_position] == "1" else "1")
+                + genome_str[mutation_position + 1 :]
+        )
