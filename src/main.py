@@ -1,4 +1,11 @@
-from simulation import run_simulation
+from app import App
+
+
+def main() -> None:
+    """Initialize and start the application."""
+    app = App()
+    app.start()
+
 
 if __name__ == "__main__":
-    run_simulation(200)
+    main()

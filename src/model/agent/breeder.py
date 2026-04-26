@@ -1,0 +1,46 @@
+from random import random, uniform
+
+from model.agent.genome import FullGenome, GenomeFactory
+
+
+class Breeder:
+    """
+    Provides functionality for breeding agents by combining their genomes to create offspring with inherited traits.
+
+    Methods:
+        crossover_genomes(a: FullCombinedGenome, b: FullCombinedGenome) -> FullCombinedGenome:
+            -> Combines the genomes of two parent agents to create a new genome for an offspring agent.
+
+    """
+
+    @staticmethod
+    def crossover_genomes(a: FullGenome, b: FullGenome) -> FullGenome:
+        """
+        Combine the genomes of two parent agents to create a new genome for an offspring agent.
+
+        The method takes the DNA representations of both parent genomes,
+        randomly decides which parent's DNA will be the primary source,
+        and then performs a crossover by selecting two random cut points.
+        The resulting child genome is created by combining segments of
+        the parent DNA according to these cut points.
+
+        Args:
+            a (FullCombinedGenome): The genome of the first parent agent.
+            b (FullCombinedGenome): The genome of the second parent agent.
+
+        Returns:
+            FullCombinedGenome: A new genome instance representing the offspring agent, derived from the parent genomes
+
+        """
+        a_dna = a.to_dna()
+        b_dna = b.to_dna()
+
+        if random() > 0.5:
+            a_dna, b_dna = b_dna, a_dna
+
+        cut1 = round(uniform(0, len(a_dna) // 2))
+        cut2 = round(uniform(cut1, len(a_dna)))
+
+        child_genome = GenomeFactory.create_genome()
+        child_genome.from_dna(a_dna[:cut1] + b_dna[cut1:cut2] + a_dna[cut2:])
+        return child_genome

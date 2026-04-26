@@ -1,0 +1,20 @@
+{
+  // --- General Python Settings ---
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit",
+      "source.fixAll.pyrefly": "explicit"
+    }
+  },
+
+  // --- Ruff Configuration ---
+  "ruff.configurationPreference": "filesystemFirst",
+
+  // --- Pyrefly Configuration ---
+  "python.pyrefly.configPath": "${workspaceFolder}/pyrefly.toml",
+
+  "python.pyrefly.displayTypeErrors": "default"
+}
