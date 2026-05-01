@@ -16,7 +16,7 @@ class App:
     def __init__(self) -> None:
         """Initialize the application, including Pygame and the simulation controller."""
         pygame.init()
-        self.config = AppConfig().from_file(self.CONFIG_PATH)
+        self.config = AppConfig.from_file(self.CONFIG_PATH)
         self._screen = pygame.display.set_mode(
             size=(
                 self.config.view.WINDOW_WIDTH,

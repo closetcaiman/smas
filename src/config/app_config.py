@@ -65,7 +65,7 @@ class AppConfig(BaseModel):
 
         # Create the TOML document
         doc = tomlkit.document()
-        doc.add(tomlkit.comment("Auto-generated default configuration from AppConfig"))
+        doc.add(tomlkit.comment("Auto-generated configuration from AppConfig"))
 
         # Iterate through each section (e.g., 'view', 'model', 'controller')
         for section_name, section_data in data.items():
