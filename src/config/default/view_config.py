@@ -54,7 +54,7 @@ class ViewConfig(BaseModel):
 
     METABOLIC_RANGE_MIN: PositiveInt = Field(default=10, ge=0)
     METABOLIC_RANGE_MAX: PositiveInt = Field(default=30, ge=0)
-    IDEAL_TEMP_RANGE_MIN: PositiveInt = Field(default=0, ge=0)
+    IDEAL_TEMP_RANGE_MIN: NonNegativeInt = Field(default=0, ge=0)
     IDEAL_TEMP_RANGE_MAX: PositiveInt = Field(default=27, ge=0)
     TEMP_TOL_RANGE_MIN: PositiveInt = Field(default=4, ge=0)
     TEMP_TOL_RANGE_MAX: PositiveInt = Field(default=10, ge=0)

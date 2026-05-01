@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 from PIL import Image
 
@@ -11,12 +13,12 @@ class HSVImageSampler:
     Sampler that converts an image into HSV color space and samples it into a grid.
 
     Methods:
-        sample_grid(image_path: str, width: int, height: int) -> WorldMapSample
+        sample_grid(image_path: Path, width: int, height: int) -> WorldMapSample
 
     """
 
     @staticmethod
-    def sample_grid(image_path: str, width: int, height: int) -> WorldMapSample:
+    def sample_grid(image_path: Path, width: int, height: int) -> WorldMapSample:
         """
         Sample the image into a `width` by `height` grid by averaging pixel blocks.
 
@@ -24,7 +26,8 @@ class HSVImageSampler:
         and the average hue, saturation, and value of the block are stored
         for later use in determining the properties of that region.
         """
-        image = Image.open(image_path).convert("HSV")
+        absolute_path = image_path.resolve()
+        image = Image.open(absolute_path).convert("HSV")
         img_array = np.array(image)
         px_height, px_width, _ = img_array.shape
 

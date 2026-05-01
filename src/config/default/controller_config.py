@@ -1,9 +1,6 @@
-import os
 from pathlib import Path
 
 from pydantic import BaseModel, Field, PositiveInt, model_validator
-
-ASSETS_DIR = Path(os.path.dirname(__file__), "../../assets").resolve()
 
 
 class ControllerConfig(BaseModel):
@@ -17,7 +14,7 @@ class ControllerConfig(BaseModel):
         default=["Slow", "Normal", "Fast", "Faster", "Max"], min_length=1
     )
     RESULTS_DIR: str = Field(default="results")
-    SAMPLING_MAP_PATH: str = Field(default=str(ASSETS_DIR / "sample-map-1.png"))
+    SAMPLING_MAP_PATH: Path = Field(default=Path("assets/sample-map-1.png"))
 
     @model_validator(mode="after")
     def check_list_lengths_match(self) -> "ControllerConfig":

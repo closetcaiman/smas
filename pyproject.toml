@@ -12,6 +12,7 @@ dependencies = [
     "pyarrow>=24.0.0",
     "pydantic>=2.13.3",
     "isort>=8.0.1",
+    "tomlkit>=0.14.0",
 ]
 
 [dependency-groups]

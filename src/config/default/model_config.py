@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, PositiveInt, model_validator
+from pydantic.types import NonNegativeInt
 
 from config.errors import RangeError
 
@@ -18,11 +19,11 @@ class ModelConfig(BaseModel):
     AGENT_INITIAL_TEMP_HIGH: PositiveInt = Field(default=25, ge=0)
 
     ### Agent.initial.age
-    AGENT_INITIAL_AGE_LOW: PositiveInt = Field(default=0, ge=0)
+    AGENT_INITIAL_AGE_LOW: NonNegativeInt = Field(default=0, ge=0)
     AGENT_INITIAL_AGE_HIGH: PositiveInt = Field(default=50, ge=0)
 
     ### Agent.initial.time_since_last_breeding
-    AGENT_INITIAL_TIME_SINCE_LAST_BREEDING: PositiveInt = Field(default=0, ge=0)
+    AGENT_INITIAL_TIME_SINCE_LAST_BREEDING: NonNegativeInt = Field(default=0, ge=0)
 
     ## Agent.genome
 
@@ -31,7 +32,7 @@ class ModelConfig(BaseModel):
     MIN_ENERGY_TO_REPRODUCE_HIGH: PositiveInt = Field(default=80, ge=1)
 
     ### Agent.genome.ideal_temperature
-    IDEAL_TEMPERATURE_LOW: PositiveInt = Field(default=0, ge=0)
+    IDEAL_TEMPERATURE_LOW: NonNegativeInt = Field(default=0, ge=0)
     IDEAL_TEMPERATURE_HIGH: PositiveInt = Field(default=28, ge=0)
 
     ### Agent.genome.temperature_tolerance
