@@ -2,34 +2,35 @@ from typing import Tuple
 
 import pygame
 
+from config.default import ViewConfig
 from model.world import Region, World
 from view.types import RenderContext
 from view.viewport import Viewport
-
-from .. import config
 
 
 class SidebarRenderer:
     """Renders the sidebar with simulation information and controls."""
 
-    def __init__(self, viewport: Viewport, world: World) -> None:
+    def __init__(self, viewport: Viewport, world: World, config: ViewConfig) -> None:
         """
         Initialize the sidebar renderer.
 
         Args:
             viewport: The viewport to use for rendering.
             world: The world to render information about.
+            config: The view configuration.
 
         Returns:
             None
 
         """
-        self._screen = viewport.screen
-        self._world = world
-        self._sidebar_x = viewport.sidebar_x
-        self._title_font = pygame.font.Font(None, config.TITLE_FONT_SIZE)
-        self._hud_font = pygame.font.Font(None, config.HUD_FONT_SIZE)
-        self._small_font = pygame.font.Font(None, config.SMALL_FONT_SIZE)
+        self.__config = config
+        self.__screen = viewport.screen
+        self.__world = world
+        self.__sidebar_x = viewport.sidebar_x
+        self.__title_font = pygame.font.Font(None, self.__config.TITLE_FONT_SIZE)
+        self.__hud_font = pygame.font.Font(None, self.__config.HUD_FONT_SIZE)
+        self.__small_font = pygame.font.Font(None, self.__config.SMALL_FONT_SIZE)
 
     def render(
         self,
@@ -54,42 +55,53 @@ class SidebarRenderer:
 
     def __render_background(self) -> None:
         pygame.draw.rect(
-            self._screen,
-            config.SIDEBAR_BG_COLOR,
-            (self._sidebar_x, 0, config.SIDEBAR_WIDTH, self._screen.get_height()),
+            self.__screen,
+            self.__config.SIDEBAR_BG_COLOR,
+            (
+                self.__sidebar_x,
+                0,
+                self.__config.SIDEBAR_WIDTH,
+                self.__screen.get_height(),
+            ),
         )
         pygame.draw.line(
-            self._screen,
-            config.SIDEBAR_BORDER_COLOR,
-            (self._sidebar_x, 0),
-            (self._sidebar_x, self._screen.get_height()),
-            config.SIDEBAR_BORDER_WIDTH,
+            self.__screen,
+            self.__config.SIDEBAR_BORDER_COLOR,
+            (self.__sidebar_x, 0),
+            (self.__sidebar_x, self.__screen.get_height()),
+            self.__config.SIDEBAR_BORDER_WIDTH,
         )
 
     def __render_header(self, epoch: int, total_agents: int, speed_label: str) -> None:
-        x = self._sidebar_x + config.SIDEBAR_MARGIN
-        y = config.SIDEBAR_MARGIN
-        self._screen.blit(
-            self._title_font.render("MAS Simulation", True, config.TEXT_COLOR), (x, y)
+        x = self.__sidebar_x + self.__config.SIDEBAR_MARGIN
+        y = self.__config.SIDEBAR_MARGIN
+        self.__screen.blit(
+            self.__title_font.render("MAS Simulation", True, self.__config.TEXT_COLOR),
+            (x, y),
         )
         y += 45
-        self._screen.blit(
-            self._hud_font.render(f"Epoch: {epoch}", True, config.TEXT_COLOR), (x, y)
-        )
-        y += 30
-        self._screen.blit(
-            self._hud_font.render(f"Alive: {total_agents}", True, config.HEALTH_COLOR),
+        self.__screen.blit(
+            self.__hud_font.render(f"Epoch: {epoch}", True, self.__config.TEXT_COLOR),
             (x, y),
         )
         y += 30
-        self._screen.blit(
-            self._hud_font.render(f"Speed: {speed_label}", True, config.WARNING_COLOR),
+        self.__screen.blit(
+            self.__hud_font.render(
+                f"Alive: {total_agents}", True, self.__config.HEALTH_COLOR
+            ),
+            (x, y),
+        )
+        y += 30
+        self.__screen.blit(
+            self.__hud_font.render(
+                f"Speed: {speed_label}", True, self.__config.WARNING_COLOR
+            ),
             (x, y),
         )
 
     def __render_controls(self) -> None:
-        x = self._sidebar_x + config.SIDEBAR_MARGIN
-        y = self._screen.get_height() - 200
+        x = self.__sidebar_x + self.__config.SIDEBAR_MARGIN
+        y = self.__screen.get_height() - 200
         for line in (
             "Controls:",
             "  ESC/Q - Quit",
@@ -100,61 +112,66 @@ class SidebarRenderer:
             "  S - Save Data",
             "  Click - Select",
         ):
-            self._screen.blit(
-                self._small_font.render(line, True, config.LABEL_COLOR), (x, y)
+            self.__screen.blit(
+                self.__small_font.render(line, True, self.__config.LABEL_COLOR), (x, y)
             )
             y += 20
 
     def __render_hovered(self, cell: Tuple[int, int]) -> None:
         x, y = cell
-        region = self._world.region_at(y, x)
+        region = self.__world.region_at(y, x)
         self.__render_cell_info(x, y, region, 240)
 
     def __render_selected(self, cell: Tuple[int, int]) -> None:
         x, y = cell
-        region = self._world.region_at(y, x)
-        pos_x = self._sidebar_x + config.SIDEBAR_MARGIN
+        region = self.__world.region_at(y, x)
+        pos_x = self.__sidebar_x + self.__config.SIDEBAR_MARGIN
         pos_y = 240
-        self._screen.blit(
-            self._hud_font.render(f"Cell ({x}, {y})", True, config.TEXT_COLOR),
+        self.__screen.blit(
+            self.__hud_font.render(f"Cell ({x}, {y})", True, self.__config.TEXT_COLOR),
             (pos_x, pos_y),
         )
         pos_y += 35
         pygame.draw.rect(
-            self._screen,
-            config.BARRIER_COLOR if region.is_barrier else config.ENLARGED_BG_COLOR,
-            (pos_x, pos_y, config.ENLARGED_SIZE, config.ENLARGED_SIZE),
+            self.__screen,
+            self.__config.BARRIER_COLOR
+            if region.is_barrier
+            else self.__config.ENLARGED_BG_COLOR,
+            (pos_x, pos_y, self.__config.ENLARGED_SIZE, self.__config.ENLARGED_SIZE),
         )
         if region.agents and not region.is_barrier:
             self.__render_enlarged_agents(region, pos_x, pos_y)
-        pos_y += config.ENLARGED_SIZE + 25
+        pos_y += self.__config.ENLARGED_SIZE + 25
         self.__render_region_stats(region, pos_x, pos_y)
 
     def __render_enlarged_agents(self, region: Region, x: int, y: int) -> None:
         if not region.agents:
             return
-        center_x = x + config.ENLARGED_SIZE // 2
-        center_y = y + config.ENLARGED_SIZE // 2
-        spacing = config.ENLARGED_AGENT_SPACING
-        num_show = min(len(region.agents), config.ENLARGED_MAX_DISPLAY)
+        center_x = x + self.__config.ENLARGED_SIZE // 2
+        center_y = y + self.__config.ENLARGED_SIZE // 2
+        spacing = self.__config.ENLARGED_AGENT_SPACING
+        num_show = min(len(region.agents), self.__config.ENLARGED_MAX_DISPLAY)
         start_offset = -(num_show - 1) * spacing // 2
 
         for i in range(num_show):
             agent = region.agents[i]
             size = agent.genome.size.value
-            normalized = (size - config.AGENT_SIZE_MIN) / (
-                config.AGENT_SIZE_MAX - config.AGENT_SIZE_MIN
+            normalized = (size - self.__config.AGENT_SIZE_MIN) / (
+                self.__config.AGENT_SIZE_MAX - self.__config.AGENT_SIZE_MIN
             )
             radius = max(
-                config.ENLARGED_MIN_RADIUS,
+                self.__config.ENLARGED_MIN_RADIUS,
                 int(
-                    config.AGENT_BASE_RADIUS
+                    self.__config.AGENT_BASE_RADIUS
                     * (
-                        config.RADIUS_FACTOR_MIN
+                        self.__config.RADIUS_FACTOR_MIN
                         + normalized
-                        * (config.RADIUS_FACTOR_MAX - config.RADIUS_FACTOR_MIN)
+                        * (
+                            self.__config.RADIUS_FACTOR_MAX
+                            - self.__config.RADIUS_FACTOR_MIN
+                        )
                     )
-                    * config.ENLARGED_AGENT_SCALE
+                    * self.__config.ENLARGED_AGENT_SCALE
                 ),
             )
 
@@ -163,46 +180,52 @@ class SidebarRenderer:
             temp_tol = agent.genome.temperature_tolerance.value
             r = int(
                 80
-                + (metabolic - config.METABOLIC_RANGE_MIN)
-                / (config.METABOLIC_RANGE_MAX - config.METABOLIC_RANGE_MIN)
+                + (metabolic - self.__config.METABOLIC_RANGE_MIN)
+                / (
+                    self.__config.METABOLIC_RANGE_MAX
+                    - self.__config.METABOLIC_RANGE_MIN
+                )
                 * 175
             )
             g = int(
                 80
-                + (ideal_temp - config.IDEAL_TEMP_RANGE_MIN)
-                / (config.IDEAL_TEMP_RANGE_MAX - config.IDEAL_TEMP_RANGE_MIN)
+                + (ideal_temp - self.__config.IDEAL_TEMP_RANGE_MIN)
+                / (
+                    self.__config.IDEAL_TEMP_RANGE_MAX
+                    - self.__config.IDEAL_TEMP_RANGE_MIN
+                )
                 * 175
             )
             b = int(
                 80
-                + (temp_tol - config.TEMP_TOL_RANGE_MIN)
-                / (config.TEMP_TOL_RANGE_MAX - config.TEMP_TOL_RANGE_MIN)
+                + (temp_tol - self.__config.TEMP_TOL_RANGE_MIN)
+                / (self.__config.TEMP_TOL_RANGE_MAX - self.__config.TEMP_TOL_RANGE_MIN)
                 * 175
             )
             color = (max(0, min(255, r)), max(0, min(255, g)), max(0, min(255, b)))
 
             offset_x = center_x + start_offset + i * spacing
-            pygame.draw.circle(self._screen, color, (offset_x, center_y), radius)
+            pygame.draw.circle(self.__screen, color, (offset_x, center_y), radius)
             pygame.draw.circle(
-                self._screen,
-                config.AGENT_OUTLINE_COLOR,
+                self.__screen,
+                self.__config.AGENT_OUTLINE_COLOR,
                 (offset_x, center_y),
                 radius,
-                config.AGENT_OUTLINE_WIDTH,
+                self.__config.AGENT_OUTLINE_WIDTH,
             )
 
     def __render_cell_info(
         self, cell_x: int, cell_y: int, region: Region, start_y: int
     ) -> None:
-        self._screen.blit(
-            self._hud_font.render(
-                f"Cell ({cell_x}, {cell_y})", True, config.TEXT_COLOR
+        self.__screen.blit(
+            self.__hud_font.render(
+                f"Cell ({cell_x}, {cell_y})", True, self.__config.TEXT_COLOR
             ),
-            (self._sidebar_x + config.SIDEBAR_MARGIN, start_y),
+            (self.__sidebar_x + self.__config.SIDEBAR_MARGIN, start_y),
         )
         start_y += 32
         self.__render_region_stats(
-            region, self._sidebar_x + config.SIDEBAR_MARGIN, start_y
+            region, self.__sidebar_x + self.__config.SIDEBAR_MARGIN, start_y
         )
 
     def __render_region_stats(self, region: Region, x: int, y: int) -> None:
@@ -214,22 +237,23 @@ class SidebarRenderer:
             f"In: {region.migrate_in_cost} Out: {region.migrate_out_cost}",
         )
         for line in lines:
-            self._screen.blit(
-                self._small_font.render(line, True, config.LABEL_COLOR), (x, y)
+            self.__screen.blit(
+                self.__small_font.render(line, True, self.__config.LABEL_COLOR), (x, y)
             )
             y += 18
         if region.agents:
             y += 10
-            self._screen.blit(
-                self._small_font.render("Agents:", True, config.TEXT_COLOR), (x, y)
+            self.__screen.blit(
+                self.__small_font.render("Agents:", True, self.__config.TEXT_COLOR),
+                (x, y),
             )
             y += 18
             for i, agent in enumerate(region.agents[:4]):
-                self._screen.blit(
-                    self._small_font.render(
+                self.__screen.blit(
+                    self.__small_font.render(
                         f"#{i + 1}: E={agent.energy} A={agent.age}",
                         True,
-                        config.LABEL_COLOR,
+                        self.__config.LABEL_COLOR,
                     ),
                     (x, y),
                 )

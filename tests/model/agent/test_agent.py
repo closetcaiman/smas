@@ -1,3 +1,4 @@
+from config.default import BehaviourConfig
 from model.agent import GenomeFactory
 from model.agent.action import Action
 from model.agent.agent import Agent
@@ -26,7 +27,7 @@ class TestAgent:
             time_since_last_breeding=100,
             genome=genome,
         )
-        action = agent.get_wanted_action()
+        action = agent.get_wanted_action(behaviour=BehaviourConfig().agent)
         assert action in [Action.EAT, Action.MIGRATE, Action.REPRODUCE]
 
     def test_step_simulation_decreases_energy(self):

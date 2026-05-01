@@ -1,6 +1,7 @@
 from math import floor
 from random import random, uniform
 
+from config.default import ModelConfig
 from model.agent.genome import FullGenome, GenomeFactory
 
 
@@ -15,7 +16,9 @@ class Breeder:
     """
 
     @staticmethod
-    def crossover_genomes(a: FullGenome, b: FullGenome) -> FullGenome:
+    def crossover_genomes(
+        a: FullGenome, b: FullGenome, config: ModelConfig = ModelConfig()
+    ) -> FullGenome:
         """
         Combine the genomes of two parent agents to create a new genome for an offspring agent.
 
@@ -28,6 +31,7 @@ class Breeder:
         Args:
             a (FullCombinedGenome): The genome of the first parent agent.
             b (FullCombinedGenome): The genome of the second parent agent.
+            config (ModelConfig): The configuration for the simulation.
 
         Returns:
             FullCombinedGenome: A new genome instance representing the offspring agent, derived from the parent genomes
@@ -55,7 +59,7 @@ class Breeder:
     def __flip_bits_mutation(genome_str: str):
         mutation_position = floor(uniform(0, len(genome_str)))
         return (
-                genome_str[:mutation_position]
-                + ("0" if genome_str[mutation_position] == "1" else "1")
-                + genome_str[mutation_position + 1 :]
+            genome_str[:mutation_position]
+            + ("0" if genome_str[mutation_position] == "1" else "1")
+            + genome_str[mutation_position + 1 :]
         )

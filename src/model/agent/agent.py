@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 import random
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from model.constants import ACTION_WEIGHT_DECAY, MOST_PREFERRED_ACTION_WEIGHT
+from config.default.behaviours import AgentBehaviourConfig
 from model.world.elements.world_element import WorldElement
 
 from .action import Action
-from .genome import FullGenome
+
+if TYPE_CHECKING:
+    from .genome import FullGenome
 
 
 @dataclass
@@ -33,7 +38,7 @@ class Agent(WorldElement):
     time_since_last_breeding: int
     genome: FullGenome
 
-    def get_wanted_action(self) -> Action:
+    def get_wanted_action(self, behaviour: AgentBehaviourConfig) -> Action:
         """
         Determine the action the agent wants to take based on its genome and current state.
 
@@ -46,7 +51,7 @@ class Agent(WorldElement):
 
         """
         choices = []
-        weight = MOST_PREFERRED_ACTION_WEIGHT
+        weight = behaviour.MOST_PREFERRED_ACTION_WEIGHT
         for action in self.genome.preferred_action.value:
             if (
                 action == Action.REPRODUCE.value
@@ -60,7 +65,7 @@ class Agent(WorldElement):
             else:
                 choices.extend([Action.EAT] * weight)
 
-            weight //= ACTION_WEIGHT_DECAY
+            weight //= behaviour.ACTION_WEIGHT_DECAY
 
         return random.choice(choices)
 
