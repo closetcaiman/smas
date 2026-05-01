@@ -1,11 +1,10 @@
 import pygame
 
+from config.default import ViewConfig
 from model.world import Region, World
 from view.renderers.ui_renderer import UIRenderer
 from view.types import RenderContext
 from view.viewport import Viewport
-
-from .. import config
 
 
 class AgentRenderer(UIRenderer):
@@ -15,6 +14,7 @@ class AgentRenderer(UIRenderer):
         self,
         viewport: Viewport,
         world: World,
+        config: ViewConfig,
     ) -> None:
         """
         Initialize the agent renderer.
@@ -25,9 +25,11 @@ class AgentRenderer(UIRenderer):
             cell_size: The size of each grid cell.
             offset_x: The x-coordinate offset for rendering the grid.
             offset_y: The y-coordinate offset for rendering the grid.
+            config: The view configuration containing settings for rendering.
 
         """
         self.__screen = viewport.screen
+        self.__config = config
         self.__world = world
         self.__cell_size = viewport.cell_size
         self.__offset_x = viewport.offset[0]
@@ -66,21 +68,22 @@ class AgentRenderer(UIRenderer):
         pygame.draw.circle(self.__screen, color, (center_x, center_y), radius)
         pygame.draw.circle(
             self.__screen,
-            config.AGENT_OUTLINE_COLOR,
+            self.__config.AGENT_OUTLINE_COLOR,
             (center_x, center_y),
             radius,
-            config.AGENT_OUTLINE_WIDTH,
+            self.__config.AGENT_OUTLINE_WIDTH,
         )
 
     def __radius_from_size(self, size: float) -> int:
-        normalized = (size - config.AGENT_SIZE_MIN) / (
-            config.AGENT_SIZE_MAX - config.AGENT_SIZE_MIN
+        normalized = (size - self.__config.AGENT_SIZE_MIN) / (
+            self.__config.AGENT_SIZE_MAX - self.__config.AGENT_SIZE_MIN
         )
         return int(
-            config.AGENT_BASE_RADIUS
+            self.__config.AGENT_BASE_RADIUS
             * (
-                config.RADIUS_FACTOR_MIN
-                + normalized * (config.RADIUS_FACTOR_MAX - config.RADIUS_FACTOR_MIN)
+                self.__config.RADIUS_FACTOR_MIN
+                + normalized
+                * (self.__config.RADIUS_FACTOR_MAX - self.__config.RADIUS_FACTOR_MIN)
             )
         )
 
@@ -89,20 +92,20 @@ class AgentRenderer(UIRenderer):
     ) -> tuple:
         r = int(
             80
-            + (metabolic - config.METABOLIC_RANGE_MIN)
-            / (config.METABOLIC_RANGE_MAX - config.METABOLIC_RANGE_MIN)
+            + (metabolic - self.__config.METABOLIC_RANGE_MIN)
+            / (self.__config.METABOLIC_RANGE_MAX - self.__config.METABOLIC_RANGE_MIN)
             * 175
         )
         g = int(
             80
-            + (ideal_temp - config.IDEAL_TEMP_RANGE_MIN)
-            / (config.IDEAL_TEMP_RANGE_MAX - config.IDEAL_TEMP_RANGE_MIN)
+            + (ideal_temp - self.__config.IDEAL_TEMP_RANGE_MIN)
+            / (self.__config.IDEAL_TEMP_RANGE_MAX - self.__config.IDEAL_TEMP_RANGE_MIN)
             * 175
         )
         b = int(
             80
-            + (temp_tol - config.TEMP_TOL_RANGE_MIN)
-            / (config.TEMP_TOL_RANGE_MAX - config.TEMP_TOL_RANGE_MIN)
+            + (temp_tol - self.__config.TEMP_TOL_RANGE_MIN)
+            / (self.__config.TEMP_TOL_RANGE_MAX - self.__config.TEMP_TOL_RANGE_MIN)
             * 175
         )
         return (max(0, min(255, r)), max(0, min(255, g)), max(0, min(255, b)))

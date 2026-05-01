@@ -6,6 +6,7 @@ from typing import Tuple
 
 import pygame
 
+from config import AppConfig
 from controller.handlers.sampling import HSVImageSampler
 from controller.mediator.simulation_data_bank import SimulationDataBank
 from controller.mediator.simulation_mediatior import SimulationMediator
@@ -15,7 +16,6 @@ from view.renderer import Renderer
 from view.types import RenderContext
 from view.viewport import Viewport
 
-from . import config
 from .handlers.input import InputHandler
 
 
@@ -25,10 +25,7 @@ class SimulationController:
     def __init__(
         self,
         screen: pygame.Surface,
-        map_image_path: str,
-        grid_width: int = config.DEFAULT_GRID_WIDTH,
-        grid_height: int = config.DEFAULT_GRID_HEIGHT,
-        num_agents: int = config.DEFAULT_AGENTS_PER_REGION,
+        config: AppConfig,
     ) -> None:
         """
         Initialize the simulation controller.
@@ -36,20 +33,18 @@ class SimulationController:
         Args:
             screen: The Pygame surface to render on.
             map_image_path: The file path to the map image for sampling the world.
-            grid_width: The width of the grid in number of cells.
-            grid_height: The height of the grid in number of cells.
-            num_agents: The number of agents to initialize per region.
+            config: The application configuration containing settings for the model, view, and controller.
 
         Returns:
             None
 
         """
-        self.__grid_width = grid_width
-        self.__grid_height = grid_height
-        self.__num_agents = num_agents
+        self.__config = config
 
         self.__world_sample = HSVImageSampler.sample_grid(
-            map_image_path, grid_width, grid_height
+            config.controller.SAMPLING_MAP_PATH,
+            config.model.GRID_WIDTH,
+            config.model.GRID_HEIGHT,
         )
 
         self.__mediator = SimulationMediator(
@@ -57,9 +52,8 @@ class SimulationController:
         )
 
         self.__simulation = Simulation(
-            grid_width=grid_width,
-            grid_height=grid_height,
-            num_agents_per_region=num_agents,
+            config=config.model,
+            behaviour=config.behaviour,
             controller_mediator=self.__mediator,
             sample=self.__world_sample,
         )
@@ -71,24 +65,25 @@ class SimulationController:
 
         self.__viewport = Viewport(
             screen=screen,
-            grid_width=grid_width,
-            grid_height=grid_height,
-            sidebar_width=config.SIDEBAR_WIDTH,
+            grid_width=config.model.GRID_WIDTH,
+            grid_height=config.model.GRID_HEIGHT,
+            sidebar_width=config.view.SIDEBAR_WIDTH,
         )
 
         self.__renderer = Renderer(
             viewport=self.__viewport,
             world=self.__simulation.world,
             sample=self.__world_sample,
+            config=config.view,
         )
 
-        self.__fps = config.DEFAULT_FPS
+        self.__fps = config.controller.FPS
         self.__done = False
         self.__selected_cell: Tuple[int, int] | None = None
         self.__hovered_cell: Tuple[int, int] | None = None
         self.__paused = False
         self.__speed_index = 1
-        self.__step_interval = config.STEP_INTERVAL_MS[self.__speed_index]
+        self.__step_interval = config.controller.STEP_INTERVAL_MS[self.__speed_index]
         self.__last_step_time = 0
 
         self.__input_handler = InputHandler()
@@ -116,7 +111,7 @@ class SimulationController:
         """Render the current state of the simulation to the screen."""
         epoch = self.__simulation.epoch
         total = self.__mediator.databank.get_total_agents(epoch)
-        speed = config.SPEED_LABELS[self.__speed_index]
+        speed = self.__config.controller.SPEED_LABELS[self.__speed_index]
         self.__renderer.render(
             RenderContext(
                 hovered_cell=self.__hovered_cell,
@@ -156,9 +151,8 @@ class SimulationController:
     def __reset(self) -> None:
         """Reset the simulation to its initial state."""
         self.__simulation = Simulation(
-            grid_width=self.__grid_width,
-            grid_height=self.__grid_height,
-            num_agents_per_region=self.__num_agents,
+            config=self.__config.model,
+            behaviour=self.__config.behaviour,
             controller_mediator=self.__mediator,
             sample=self.__world_sample,
         )
@@ -166,12 +160,15 @@ class SimulationController:
             viewport=self.__viewport,
             world=self.__simulation.world,
             sample=self.__world_sample,
+            config=self.__config.view,
         )
         self.__selected_cell = None
         self.__hovered_cell = None
         self.__paused = False
         self.__speed_index = 1
-        self.__step_interval = config.STEP_INTERVAL_MS[self.__speed_index]
+        self.__step_interval = self.__config.controller.STEP_INTERVAL_MS[
+            self.__speed_index
+        ]
         self.__last_step_time = 0
 
     def __quit(self) -> None:
@@ -187,15 +184,19 @@ class SimulationController:
 
     def __speed_up(self) -> None:
         """Increase the simulation speed by decreasing the step interval."""
-        if self.__speed_index < len(config.STEP_INTERVAL_MS) - 1:
+        if self.__speed_index < len(self.__config.controller.STEP_INTERVAL_MS) - 1:
             self.__speed_index += 1
-            self.__step_interval = config.STEP_INTERVAL_MS[self.__speed_index]
+            self.__step_interval = self.__config.controller.STEP_INTERVAL_MS[
+                self.__speed_index
+            ]
 
     def __speed_down(self) -> None:
         """Decrease the simulation speed by increasing the step interval."""
         if self.__speed_index > 0:
             self.__speed_index -= 1
-            self.__step_interval = config.STEP_INTERVAL_MS[self.__speed_index]
+            self.__step_interval = self.__config.controller.STEP_INTERVAL_MS[
+                self.__speed_index
+            ]
 
     def __handle_click(self, pos: Tuple[int, int]) -> None:
         """Handle a click event at the given screen position."""
@@ -228,4 +229,4 @@ class SimulationController:
     def __get_simulation_run_name(self) -> Path:
         """Generate a unique name for the current simulation run based on the timestamp."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return Path(config.RESULTS_DIR, f"simulation_{timestamp}")
+        return Path(self.__config.controller.RESULTS_DIR, f"simulation_{timestamp}")

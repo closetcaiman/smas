@@ -1,6 +1,7 @@
 import random
 from typing import List
 
+from config.default import BehaviourConfig, ModelConfig
 from controller.handlers.sampling import WorldMapSample
 from controller.mediator import SimulationMediator
 from model.agent import Breeder, GenomeFactory
@@ -24,9 +25,8 @@ class Simulation:
 
     def __init__(
         self,
-        grid_width: int,
-        grid_height: int,
-        num_agents_per_region: int,
+        config: ModelConfig,
+        behaviour: BehaviourConfig,
         controller_mediator: SimulationMediator,
         sample: WorldMapSample,
     ) -> None:
@@ -38,9 +38,8 @@ class Simulation:
         in the simulation data bank for historical tracking and analysis.
 
         Args:
-            grid_width (int): The width of the grid (number of columns).
-            grid_height (int): The height of the grid (number of rows).
-            num_agents_per_region (int): The number of agents to initialize in each region.
+            config (ModelConfig): The configuration for the model component.
+            behaviour (BehaviourConfig): The configuration for how the simulation behaves.
             controller_mediator (SimulationMediator): The mediator for communication between simulation components.
             sample (WorldMapSample): The sampled seed data for initializing the world state.
 
@@ -48,11 +47,13 @@ class Simulation:
             None
 
         """
-        self.world = World(grid_width, grid_height, sample)
-        self.__epoch = 0
+        self.world = World(config.GRID_WIDTH, config.GRID_HEIGHT, sample)
         self.mediator = controller_mediator
 
-        self.__initialize_agents(num_agents_per_region, list(self.world.regions))
+        self.__config = config
+        self.__behaviour = behaviour
+        self.__epoch = 0
+        self.__initialize_agents(list(self.world.regions))
 
     @property
     def epoch(self) -> int:
@@ -68,17 +69,26 @@ class Simulation:
                 self.__perform_agent_actions(region)
                 region.step_simulation()
 
-    def __initialize_agents(self, num_agents_per_region: int, regions: List[Region]):
+    def __initialize_agents(self, regions: List[Region]):
         for region in regions:
             agents = []
-            for _ in range(num_agents_per_region):
+            for _ in range(self.__config.AGENTS_PER_REGION):
                 agents.append(
                     Agent(
-                        energy=random.randrange(100, 150),
-                        age=0,
-                        time_since_last_breeding=0,
-                        genome=GenomeFactory.create_genome(),
-                        temperature=20,
+                        energy=random.randrange(
+                            self.__config.AGENT_INITIAL_ENERGY_LOW,
+                            self.__config.AGENT_INITIAL_ENERGY_HIGH,
+                        ),
+                        age=random.randrange(
+                            self.__config.AGENT_INITIAL_AGE_LOW,
+                            self.__config.AGENT_INITIAL_AGE_HIGH,
+                        ),
+                        temperature=random.randrange(
+                            self.__config.AGENT_INITIAL_TEMP_LOW,
+                            self.__config.AGENT_INITIAL_TEMP_HIGH,
+                        ),
+                        time_since_last_breeding=self.__config.AGENT_INITIAL_TIME_SINCE_LAST_BREEDING,
+                        genome=GenomeFactory.create_genome(self.__config),
                     )
                 )
             region.agents = agents
@@ -104,15 +114,17 @@ class Simulation:
         reproducing_agents = [
             agent
             for agent in region.agents
-            if agent.get_wanted_action() == Action.REPRODUCE
+            if agent.get_wanted_action(self.__behaviour.agent) == Action.REPRODUCE
         ]
         migrating_agents = [
             agent
             for agent in region.agents
-            if agent.get_wanted_action() == Action.MIGRATE
+            if agent.get_wanted_action(self.__behaviour.agent) == Action.MIGRATE
         ]
         eating_agents = [
-            agent for agent in region.agents if agent.get_wanted_action() == Action.EAT
+            agent
+            for agent in region.agents
+            if agent.get_wanted_action(self.__behaviour.agent) == Action.EAT
         ]
 
         self.__breed_agents(region, reproducing_agents)
@@ -157,7 +169,9 @@ class Simulation:
                     energy=(a[i].energy + b[i].energy) // 2,
                     age=0,
                     time_since_last_breeding=0,
-                    genome=Breeder.crossover_genomes(a[i].genome, b[i].genome),
+                    genome=Breeder.crossover_genomes(
+                        a[i].genome, b[i].genome, self.__config
+                    ),
                     temperature=a[i].temperature,
                 )
             )

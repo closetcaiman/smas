@@ -1,3 +1,4 @@
+from config.default import ViewConfig
 from controller.handlers.sampling.world_map_sample import WorldMapSample
 from model.world import World
 from view.renderers.ui_renderer import UIRenderer
@@ -17,6 +18,7 @@ class Renderer(UIRenderer):
         viewport: Viewport,
         world: World,
         sample: WorldMapSample,
+        config: ViewConfig,
     ) -> None:
         """
         Initialize the main renderer.
@@ -26,11 +28,12 @@ class Renderer(UIRenderer):
             world: The world to render.
             sample: The world map sample.
             cell_size: The size of each grid cell.
+            config: The view configuration containing settings for rendering.
 
         """
-        self.__grid_renderer = GridRenderer(viewport, world, sample)
-        self.__agent_renderer = AgentRenderer(viewport, world)
-        self.__sidebar_renderer = SidebarRenderer(viewport, world)
+        self.__grid_renderer = GridRenderer(viewport, world, sample, config)
+        self.__agent_renderer = AgentRenderer(viewport, world, config)
+        self.__sidebar_renderer = SidebarRenderer(viewport, world, config)
 
         self.__pipeline = [
             self.__grid_renderer.render,

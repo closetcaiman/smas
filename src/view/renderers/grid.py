@@ -1,12 +1,11 @@
 import pygame
 
+from config.default import ViewConfig
 from controller.handlers.sampling import WorldMapSample
 from model.world import World
 from view.renderers.ui_renderer import UIRenderer
 from view.types import RenderContext
 from view.viewport import Viewport
-
-from .. import config
 
 
 class GridRenderer(UIRenderer):
@@ -17,6 +16,7 @@ class GridRenderer(UIRenderer):
         viewport: Viewport,
         world: World,
         sample: WorldMapSample,
+        config: ViewConfig,
     ) -> None:
         """
         Initialize the grid renderer.
@@ -28,8 +28,10 @@ class GridRenderer(UIRenderer):
             cell_size: The size of each grid cell.
             offset_x: The x-coordinate offset for rendering the grid.
             offset_y: The y-coordinate offset for rendering the grid.
+            config: The view configuration containing settings for rendering.
 
         """
+        self.__config = config
         self.__screen = viewport.screen
         self.__world = world
         self.__world_sample = sample
@@ -117,7 +119,7 @@ class GridRenderer(UIRenderer):
             y = self.__offset_y + i * self.__cell_size
             pygame.draw.line(
                 self.__screen,
-                config.GRID_LINE_COLOR,
+                self.__config.GRID_LINE_COLOR,
                 (self.__offset_x, y),
                 (self.__offset_x + self.__grid_width_px, y),
             )
@@ -125,7 +127,7 @@ class GridRenderer(UIRenderer):
             x = self.__offset_x + j * self.__cell_size
             pygame.draw.line(
                 self.__screen,
-                config.GRID_LINE_COLOR,
+                self.__config.GRID_LINE_COLOR,
                 (x, self.__offset_y),
                 (x, self.__offset_y + self.__grid_height_px),
             )
@@ -141,4 +143,4 @@ class GridRenderer(UIRenderer):
                     self.__cell_size - 2,
                     self.__cell_size - 2,
                 )
-                pygame.draw.rect(self.__screen, config.BARRIER_COLOR, rect)
+                pygame.draw.rect(self.__screen, self.__config.BARRIER_COLOR, rect)
