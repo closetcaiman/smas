@@ -88,6 +88,9 @@ class ViewConfig(BaseModel):
     HUD_FONT_SIZE: PositiveInt = Field(default=22, ge=10)
     SMALL_FONT_SIZE: PositiveInt = Field(default=16, ge=10)
 
+    # Metrics
+    METRICS_UPDATE_INTERVAL: PositiveInt = Field(default=10, ge=1)
+
     @model_validator(mode="after")
     def check_range_consistency(self) -> "ViewConfig":
         """Validate that all min values are less than their corresponding max values."""

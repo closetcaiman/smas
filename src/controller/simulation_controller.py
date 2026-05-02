@@ -48,7 +48,9 @@ class SimulationController:
         )
 
         self.__mediator = SimulationMediator(
-            databank=SimulationDataBank(storage_dir=self.__get_simulation_run_name()),
+            databank=SimulationDataBank(
+                storage_dir=self.__get_simulation_run_name(), config=config.metrics
+            ),
         )
 
         self.__simulation = Simulation(
@@ -74,7 +76,8 @@ class SimulationController:
             viewport=self.__viewport,
             world=self.__simulation.world,
             sample=self.__world_sample,
-            config=config.view,
+            view_config=config.view,
+            metrics_config=config.metrics,
         )
 
         self.__fps = config.controller.FPS
@@ -85,7 +88,7 @@ class SimulationController:
         self.__speed_index = 1
         self.__step_interval = config.controller.STEP_INTERVAL_MS[self.__speed_index]
         self.__last_step_time = 0
-
+        self.__barrier_placed = False
         self.__input_handler = InputHandler()
 
     @property
@@ -119,6 +122,8 @@ class SimulationController:
                 epoch=epoch,
                 total_agents=total,
                 speed_label=speed,
+                metrics_data=self.__mediator.databank.metrics_history,
+                is_barrier=self.__barrier_placed,
             )
         )
         pygame.display.flip()
@@ -160,7 +165,8 @@ class SimulationController:
             viewport=self.__viewport,
             world=self.__simulation.world,
             sample=self.__world_sample,
-            config=self.__config.view,
+            view_config=self.__config.view,
+            metrics_config=self.__config.metrics,
         )
         self.__selected_cell = None
         self.__hovered_cell = None
@@ -181,6 +187,7 @@ class SimulationController:
         for region in self.__simulation.world.regions:
             if region.coordinates[0] == col:
                 region.make_barrier()
+        self.__barrier_placed = True
 
     def __speed_up(self) -> None:
         """Increase the simulation speed by decreasing the step interval."""

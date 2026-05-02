@@ -75,3 +75,6 @@ SAMPLING_MAP_PATH = "assets/sample-map-1.png"
 [behaviour.agent]
 MOST_PREFERRED_ACTION_WEIGHT = 6
 ACTION_WEIGHT_DECAY = 2
+
+[metrics]
+BHATTACHARYYA_TRAIT = "agent_ideal_temperature"

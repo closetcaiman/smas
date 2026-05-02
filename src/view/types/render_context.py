@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Tuple
 
+from controller.types import SimulationMetrics
+
 
 @dataclass(frozen=True)
 class RenderContext:
@@ -11,3 +13,5 @@ class RenderContext:
     epoch: int
     total_agents: int
     speed_label: str
+    is_barrier: bool
+    metrics_data: list[SimulationMetrics]

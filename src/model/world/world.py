@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Iterator, List
 
 from model.world.elements.food import FoodResources
 from model.world.elements.region import Region
+from model.world.types import PopulationType
 
 if TYPE_CHECKING:
     from controller.handlers import WorldMapSample
@@ -37,6 +38,9 @@ class World:
                 tall_grass_seed = self.__sample.tall_grass_seed(i, j)
                 fruit_seed = self.__sample.fruit_seed(i, j)
                 migration_cost_seed = self.__sample.migration_cost_seed(i, j)
+                population_type = (
+                    PopulationType.A if i < self.__width // 2 else PopulationType.B
+                )
                 self.__regions[i].append(
                     Region(
                         food=FoodResources(
@@ -59,6 +63,7 @@ class World:
                         neighbors=[],
                         coordinates=(i, j),
                         agents=[],
+                        population_type=population_type,
                     )
                 )
 

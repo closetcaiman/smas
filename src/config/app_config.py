@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from .default import (
     BehaviourConfig,
     ControllerConfig,
+    MetricsConfig,
     ModelConfig,
     ViewConfig,
 )
@@ -22,6 +23,7 @@ class AppConfig(BaseModel):
     view: ViewConfig = ViewConfig()
     controller: ControllerConfig = ControllerConfig()
     behaviour: BehaviourConfig = BehaviourConfig()
+    metrics: MetricsConfig = MetricsConfig()
 
     @staticmethod
     def from_file(file_path: str | Path) -> "AppConfig":

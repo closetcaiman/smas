@@ -2,8 +2,12 @@
 
 from typing import TypedDict
 
+from pandera.typing import DataFrame
+
+from metrics.types.agent_dataframe import PCADataSchema
 from model.agent.genome import FullGenome
 from model.world.elements.food import FoodResources
+from model.world.types import PopulationType
 
 type RegionCoordinates = tuple[int, int]
 
@@ -35,6 +39,7 @@ class RegionData(TypedDict):
     max_agents: int
     migrate_in_cost: int
     migrate_out_cost: int
+    population_type: PopulationType
 
 
 class SimulationData(TypedDict):
@@ -42,3 +47,12 @@ class SimulationData(TypedDict):
 
     epoch: int
     region_data: dict[RegionCoordinates, RegionData]
+
+
+class SimulationMetrics(TypedDict):
+    """Metrics calculated for a specific epoch."""
+
+    epoch: int
+    fst: float
+    bhattacharyya_distance: float
+    pca: DataFrame[PCADataSchema]
