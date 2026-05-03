@@ -12,6 +12,7 @@ class Viewport:
     grid_width: int
     grid_height: int
     sidebar_width: int
+    offset_x: int
 
     def __init__(
         self,
@@ -19,6 +20,7 @@ class Viewport:
         grid_width: int,
         grid_height: int,
         sidebar_width: int,
+        offset_x: int,
     ) -> None:
         """
         Initialize the viewport with the given parameters.
@@ -28,15 +30,18 @@ class Viewport:
             grid_width: The width of the grid in cells.
             grid_height: The height of the grid in cells.
             sidebar_width: The width of the sidebar in pixels.
+            offset_x: The x-coordinate offset for rendering the grid (to account for metrics panel).
 
         """
         self.screen = screen
         self.grid_width = grid_width
         self.grid_height = grid_height
         self.sidebar_width = sidebar_width
+        self.offset_x = offset_x
 
         # Must be initialized in this order:
         # grid_area_width -> cell_size -> offset | sidebar_x
+
         self.grid_area_width = self.__calculate_grid_area_width()
         self.cell_size = self.__calculate_cell_size()
         self.offset = self.__calculate_offset()
@@ -74,19 +79,19 @@ class Viewport:
         off_x, off_y = self.offset
         grid_x = (x - off_x) // self.cell_size
         grid_y = (y - off_y) // self.cell_size
-        return int(grid_x), int(grid_y)
+        return grid_x, grid_y
 
     def __calculate_grid_area_width(self) -> int:
         """Calculate the width of the area available for rendering the grid."""
-        return self.screen.get_width() - self.sidebar_width
+        return self.screen.get_width() - self.sidebar_width - self.offset_x
 
     def __calculate_sidebar_x(self) -> int:
         """Calculate the x-coordinate where the sidebar starts."""
-        return self.grid_area_width
+        return self.grid_area_width + self.offset_x
 
     def __calculate_cell_size(self) -> int:
         """Calculate the size of each grid cell based on the available area."""
-        grid_area_width = self.screen.get_width() - self.sidebar_width
+        grid_area_width = self.screen.get_width() - self.sidebar_width - self.offset_x
         grid_area_height = self.screen.get_height()
         return min(
             grid_area_width // self.grid_width,
@@ -99,4 +104,4 @@ class Viewport:
         grid_h_px = self.grid_height * self.cell_size
         off_x = (self.grid_area_width - grid_w_px) // 2
         off_y = (self.screen.get_height() - grid_h_px) // 2
-        return off_x, off_y
+        return off_x + self.offset_x, off_y

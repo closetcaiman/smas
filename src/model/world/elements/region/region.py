@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List
 
 from model.world.elements.food import FoodResources
 from model.world.elements.world_element import WorldElement
+from model.world.types import PopulationType
 
 if TYPE_CHECKING:
     from model.agent import Agent
@@ -28,6 +29,7 @@ class Region(WorldElement):
     agents: List[Agent]
 
     coordinates: tuple[int, int]
+    population_type: PopulationType
     is_barrier: bool = False
 
     def step_simulation(self) -> None:

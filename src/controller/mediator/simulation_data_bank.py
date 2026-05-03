@@ -6,8 +6,12 @@ from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+from pandera.typing import DataFrame
 
-from controller.types import AgentData, RegionData, SimulationData
+from config.default import MetricsConfig
+from controller.types import AgentData, RegionData, SimulationData, SimulationMetrics
+from metrics import MetricCalculator
+from metrics.types import AgentSchema
 from model.world import World
 
 
@@ -15,13 +19,19 @@ class SimulationDataBank:
     """Stores historical simulation data for analysis and visualization."""
 
     def __init__(
-        self, storage_dir: Path | str, active_limit: int = 10, dump_data: bool = False
+        self,
+        storage_dir: Path | str,
+        config: MetricsConfig,
+        active_limit: int = 10,
+        dump_data: bool = False,
     ) -> None:
         """Initialize an empty data bank."""
         self.simulation_history: dict[int, SimulationData] = {}
+        self.simulation_metrics_history: dict[int, SimulationMetrics] = {}
         self.__storage_dir = Path(storage_dir)
         self.__active_limit = active_limit
         self.__dump_data = dump_data
+        self.__config = config
 
         self.epoch_keys = deque()
 
@@ -41,11 +51,26 @@ class SimulationDataBank:
             raise ValueError(f"Epoch {epoch} not found in data bank.")
         return self.simulation_history[epoch]
 
-    def record_epoch(self, world_state: World, epoch: int) -> None:
+    @property
+    def metrics_history(self) -> list[SimulationMetrics]:
+        """List of the historical metrics data."""
+        return [
+            self.simulation_metrics_history[epoch]
+            for epoch in sorted(self.simulation_metrics_history.keys())
+        ]
+
+    def record_epoch(
+        self, world_state: World, epoch: int, barrier_placed: bool
+    ) -> None:
         """Record the state of the world at a specific epoch."""
         epoch_data = self.__initialize_data(world_state, epoch)
 
         self.simulation_history[epoch] = epoch_data
+
+        if barrier_placed:
+            self.simulation_metrics_history[epoch] = self.__get_metrics(
+                epoch, self.__config
+            )
         self.epoch_keys.append(epoch)
 
         if len(self.epoch_keys) > self.__active_limit:
@@ -86,6 +111,50 @@ class SimulationDataBank:
 
         region_data["dead_agents"] += count
 
+    def __get_metrics(self, epoch: int, config: MetricsConfig) -> SimulationMetrics:
+        """Calculate and store metrics for a specific epoch."""
+        genome_df = self.__get_genome_dataframe(epoch)
+
+        fst = MetricCalculator.calculate_true_fst(genome_df)
+        bhattacharyya_distance = MetricCalculator.calculate_bhattacharyya_distance(
+            genome_df, config.BHATTACHARYYA_TRAIT
+        )
+        pca = MetricCalculator.calculate_pca(genome_df)
+
+        return {
+            "epoch": epoch,
+            "fst": fst,
+            "bhattacharyya_distance": bhattacharyya_distance,
+            "pca": pca,
+        }
+
+    def __get_genome_dataframe(self, epoch: int) -> DataFrame[AgentSchema]:
+        """Convert the stored simulation data into a DataFrame for analysis."""
+        all_rows = []
+        epoch_data = self.get_epoch_data(epoch)
+        for region in epoch_data["region_data"].values():
+            for agent in region["agent_data"]:
+                genome = agent["genome"]
+                row = {
+                    "epoch": epoch,
+                    "agent_min_energy_to_reproduce": genome.min_energy_to_reproduce.value,
+                    # Get the most preferred food type
+                    "agent_preferred_food": genome.preferred_food.value[0],
+                    # Get the most preferred action
+                    "agent_preferred_action": genome.preferred_action.value[0],
+                    "agent_ideal_temperature": genome.ideal_temperature.value,
+                    "agent_temperature_tolerance": genome.temperature_tolerance.value,
+                    "agent_metabolic_rate": genome.metabolic_rate.value,
+                    "agent_maturity_age": genome.maturity_age.value,
+                    "agent_size": genome.size.value,
+                    "agent_breeding_interval": genome.breeding_interval.value,
+                    "agent_dna": genome.to_dna(),
+                    "population_type": region["population_type"].name,
+                }
+                all_rows.append(row)
+
+        return DataFrame[AgentSchema](all_rows)
+
     def __initialize_data(self, world_state: World, epoch: int) -> SimulationData:
         """Map the current state of the World/Regions into the TypedDict format."""
         region_map: dict[tuple[int, int], RegionData] = {}
@@ -116,6 +185,7 @@ class SimulationDataBank:
                 "max_agents": region.max_agents,
                 "migrate_in_cost": region.migrate_in_cost,
                 "migrate_out_cost": region.migrate_out_cost,
+                "population_type": region.population_type,
             }
 
         return {"epoch": epoch, "region_data": region_map}
@@ -165,6 +235,10 @@ class SimulationDataBank:
             return
 
         data = self.simulation_history.pop(epoch)
+
+        if epoch in self.simulation_metrics_history:
+            metrics = self.simulation_metrics_history.pop(epoch)
+            del metrics
 
         # Explicitly clear internal lists to break references for the GC
         for region in data["region_data"].values():

@@ -1,6 +1,7 @@
-from config.default import ViewConfig
+from config.default import MetricsConfig, ViewConfig
 from controller.handlers.sampling.world_map_sample import WorldMapSample
 from model.world import World
+from view.renderers.metrics import MetricsRenderer
 from view.renderers.ui_renderer import UIRenderer
 from view.viewport import Viewport
 
@@ -18,7 +19,8 @@ class Renderer(UIRenderer):
         viewport: Viewport,
         world: World,
         sample: WorldMapSample,
-        config: ViewConfig,
+        view_config: ViewConfig,
+        metrics_config: MetricsConfig,
     ) -> None:
         """
         Initialize the main renderer.
@@ -28,14 +30,17 @@ class Renderer(UIRenderer):
             world: The world to render.
             sample: The world map sample.
             cell_size: The size of each grid cell.
-            config: The view configuration containing settings for rendering.
+            view_config: The view configuration containing settings for rendering.
+            metrics_config: The metrics configuration containing settings for metrics rendering.
 
         """
-        self.__grid_renderer = GridRenderer(viewport, world, sample, config)
-        self.__agent_renderer = AgentRenderer(viewport, world, config)
-        self.__sidebar_renderer = SidebarRenderer(viewport, world, config)
+        self.__grid_renderer = GridRenderer(viewport, world, sample, view_config)
+        self.__agent_renderer = AgentRenderer(viewport, world, view_config)
+        self.__sidebar_renderer = SidebarRenderer(viewport, world, view_config)
+        self.__metrics_renderer = MetricsRenderer(viewport, view_config, metrics_config)
 
-        self.__pipeline = [
+        self.__main_pipeline = [
+            self.__metrics_renderer.render,
             self.__grid_renderer.render,
             self.__agent_renderer.render,
             self.__sidebar_renderer.render,
@@ -50,10 +55,11 @@ class Renderer(UIRenderer):
 
         Args:
             context: The rendering context containing dynamic information for rendering.
+            is_barrier: A flag indicating whether to render the post-barrier pipeline (metrics) after the main rendering steps.
 
         Returns:
             None
 
         """
-        for render_step in self.__pipeline:
+        for render_step in self.__main_pipeline:
             render_step(context)

@@ -14,8 +14,8 @@ class ViewConfig(BaseModel):
     """Configuration for the view component of the application."""
 
     # Window
-    WINDOW_WIDTH: PositiveInt = Field(default=1000, ge=1000, le=2000)
-    WINDOW_HEIGHT: PositiveInt = Field(default=700, ge=700, le=1400)
+    WINDOW_WIDTH: PositiveInt = Field(default=1275, ge=1275, le=2000)
+    WINDOW_HEIGHT: PositiveInt = Field(default=1000, ge=1000, le=1400)
 
     # Grid
     GRID_LINE_COLOR: tuple[NonNegativeInt, NonNegativeInt, NonNegativeInt] = Field(
@@ -87,6 +87,16 @@ class ViewConfig(BaseModel):
     TITLE_FONT_SIZE: PositiveInt = Field(default=28, ge=10)
     HUD_FONT_SIZE: PositiveInt = Field(default=22, ge=10)
     SMALL_FONT_SIZE: PositiveInt = Field(default=16, ge=10)
+
+    # Metrics
+    METRICS_PANEL_WIDTH: PositiveInt = Field(default=275, ge=275, le=400)
+    METRICS_BG_COLOR: tuple[NonNegativeInt, NonNegativeInt, NonNegativeInt] = Field(
+        default=(30, 30, 30)
+    )
+    METRICS_ACCENT_COLOR: tuple[NonNegativeInt, NonNegativeInt, NonNegativeInt] = Field(
+        default=(100, 200, 255)
+    )
+    METRICS_UPDATE_INTERVAL: PositiveInt = Field(default=10, ge=1)
 
     @model_validator(mode="after")
     def check_range_consistency(self) -> "ViewConfig":

@@ -1,4 +1,5 @@
 from model.world import FoodResources, Region
+from model.world.types import PopulationType
 
 
 class TestRegion:
@@ -22,6 +23,7 @@ class TestRegion:
             neighbors=[],
             agents=[],
             coordinates=(0, 0),
+            population_type=PopulationType.A,
         )
         assert region.migrate_in_cost == 10
         assert region.max_agents == 20
@@ -48,6 +50,7 @@ class TestRegion:
             neighbors=[],
             agents=[],
             coordinates=(0, 0),
+            population_type=PopulationType.A,
         )
         region.step_simulation()
         assert region.food.grass_amount == 15
