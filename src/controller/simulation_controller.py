@@ -71,6 +71,7 @@ class SimulationController:
             grid_width=config.model.GRID_WIDTH,
             grid_height=config.model.GRID_HEIGHT,
             sidebar_width=config.view.SIDEBAR_WIDTH,
+            offset_x=config.view.METRICS_PANEL_WIDTH,
         )
 
         self.__renderer = Renderer(

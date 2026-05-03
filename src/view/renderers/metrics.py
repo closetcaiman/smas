@@ -32,6 +32,8 @@ class MetricsRenderer(UIRenderer):
         self.__last_epoch = -1
         self.__sidebar_x = viewport.sidebar_x
 
+        self.__cached_surfaces = []
+
     def render(self, context: RenderContext):
         """
         Render the metrics visualization on the screen.
@@ -42,6 +44,30 @@ class MetricsRenderer(UIRenderer):
             context: The rendering context containing the current epoch and metrics data.
 
         """
+        pygame.draw.rect(
+            self.__viewport.screen,
+            self.__view_config.METRICS_BG_COLOR,
+            (
+                0,
+                0,
+                self.__view_config.METRICS_PANEL_WIDTH,
+                self.__viewport.screen.get_height(),
+            ),
+        )
+
+        font = pygame.font.SysFont(None, self.__view_config.HUD_FONT_SIZE)
+        text_surface = font.render(
+            "Metrics (FST, PCA, B-distance)", True, self.__view_config.TEXT_COLOR
+        )
+        text_hint = font.render(
+            "(?) Place the barrier to start",
+            True,
+            self.__view_config.METRICS_ACCENT_COLOR,
+        )
+
+        self.__viewport.screen.blit(text_surface, (5, 10))
+        self.__viewport.screen.blit(text_hint, (5, 40))
+
         if not context.metrics_data:
             return
 
@@ -52,25 +78,48 @@ class MetricsRenderer(UIRenderer):
             self.__update_cache(context.metrics_data)
             self.__last_epoch = context.epoch
 
-        if self.__cached_surface:
-            padding = 10
-            draw_x = self.__sidebar_x + padding
-            draw_y = 550
-            self.__viewport.screen.blit(self.__cached_surface, (draw_x, draw_y))
+        if self.__cached_surfaces:
+            font = pygame.font.SysFont(None, 24)
+            latest = context.metrics_data[-1]
+
+            y_pos = 70
+            spacing = 250
+
+            self.__viewport.screen.blit(self.__cached_surfaces[0], (0, y_pos))
+            val_text = font.render(
+                f"Current FST: {latest['fst']:.4f}", True, (255, 255, 255)
+            )
+            self.__viewport.screen.blit(val_text, (10, y_pos + 200))
+
+            y_pos += spacing
+            self.__viewport.screen.blit(self.__cached_surfaces[2], (0, y_pos))
+            b_text = font.render(
+                f"B-Dist: {latest['bhattacharyya_distance']:.4f}", True, (255, 255, 255)
+            )
+            self.__viewport.screen.blit(b_text, (10, y_pos + 200))
+
+            y_pos += spacing
+            self.__viewport.screen.blit(self.__cached_surfaces[1], (0, y_pos))
 
     def __update_cache(self, data):
-        width_in_inches = (self.__view_config.SIDEBAR_WIDTH - 20) / 100
-        fig, axes = plt.subplots(3, 1, figsize=(width_in_inches, 6), dpi=100)
-        self.__plot_fst(axes[0], data)
-        self.__plot_pca(axes[1], data[-1])
-        self.__plot_bhattacharyya(axes[2], data)
+        self.__cached_surfaces = []
+        width_in_inches = (self.__view_config.METRICS_PANEL_WIDTH - 20) / 100
 
-        fig.tight_layout(pad=1.0)
-        buf = io.BytesIO()
-        plt.savefig(buf, format="png", bbox_inches="tight")
-        buf.seek(0)
-        self.__cached_surface = pygame.image.load(buf)
-        plt.close(fig)
+        # Helper to create a single plot image
+        def _save_plot(plot_func, *args):
+            fig, ax = plt.subplots(figsize=(width_in_inches, 2.0), dpi=100)
+            plot_func(ax, *args)
+            fig.tight_layout(pad=1.0)
+            buf = io.BytesIO()
+            plt.savefig(buf, format="png", bbox_inches="tight")
+            buf.seek(0)
+            surf = pygame.image.load(buf).convert_alpha()
+            plt.close(fig)
+            return surf
+
+        self.__cached_surfaces.append(_save_plot(self.__plot_fst, data))
+        self.__cached_surfaces.append(_save_plot(self.__plot_pca, data[-1]))
+        self.__cached_surfaces.append(_save_plot(self.__plot_bhattacharyya, data))
 
     def __plot_fst(self, ax, data):
         epochs = [m["epoch"] for m in data]

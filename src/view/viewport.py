@@ -12,6 +12,7 @@ class Viewport:
     grid_width: int
     grid_height: int
     sidebar_width: int
+    offset_x: int
 
     def __init__(
         self,
@@ -19,6 +20,7 @@ class Viewport:
         grid_width: int,
         grid_height: int,
         sidebar_width: int,
+        offset_x: int,
     ) -> None:
         """
         Initialize the viewport with the given parameters.
@@ -28,15 +30,18 @@ class Viewport:
             grid_width: The width of the grid in cells.
             grid_height: The height of the grid in cells.
             sidebar_width: The width of the sidebar in pixels.
+            offset_x: The x-coordinate offset for rendering the grid (to account for metrics panel).
 
         """
         self.screen = screen
         self.grid_width = grid_width
         self.grid_height = grid_height
         self.sidebar_width = sidebar_width
+        self.offset_x = offset_x
 
         # Must be initialized in this order:
         # grid_area_width -> cell_size -> offset | sidebar_x
+
         self.grid_area_width = self.__calculate_grid_area_width()
         self.cell_size = self.__calculate_cell_size()
         self.offset = self.__calculate_offset()

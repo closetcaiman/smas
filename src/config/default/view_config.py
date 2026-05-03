@@ -89,6 +89,13 @@ class ViewConfig(BaseModel):
     SMALL_FONT_SIZE: PositiveInt = Field(default=16, ge=10)
 
     # Metrics
+    METRICS_PANEL_WIDTH: PositiveInt = Field(default=275, ge=275, le=400)
+    METRICS_BG_COLOR: tuple[NonNegativeInt, NonNegativeInt, NonNegativeInt] = Field(
+        default=(30, 30, 30)
+    )
+    METRICS_ACCENT_COLOR: tuple[NonNegativeInt, NonNegativeInt, NonNegativeInt] = Field(
+        default=(100, 200, 255)
+    )
     METRICS_UPDATE_INTERVAL: PositiveInt = Field(default=10, ge=1)
 
     @model_validator(mode="after")

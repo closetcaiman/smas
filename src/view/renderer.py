@@ -40,11 +40,11 @@ class Renderer(UIRenderer):
         self.__metrics_renderer = MetricsRenderer(viewport, view_config, metrics_config)
 
         self.__main_pipeline = [
+            self.__metrics_renderer.render,
             self.__grid_renderer.render,
             self.__agent_renderer.render,
             self.__sidebar_renderer.render,
         ]
-        self.__post_barrier_pipeline = [self.__metrics_renderer.render]
 
     def render(self, context: RenderContext) -> None:
         """
@@ -63,7 +63,3 @@ class Renderer(UIRenderer):
         """
         for render_step in self.__main_pipeline:
             render_step(context)
-
-        if context.is_barrier:
-            for render_step in self.__post_barrier_pipeline:
-                render_step(context)

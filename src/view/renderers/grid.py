@@ -36,7 +36,7 @@ class GridRenderer(UIRenderer):
         self.__world = world
         self.__world_sample = sample
         self.__cell_size = viewport.cell_size
-        self.__offset_x = viewport.offset[0]
+        self.__offset_x = viewport.offset[0] + config.METRICS_PANEL_WIDTH
         self.__offset_y = viewport.offset[1]
         self.__grid_width_px = world.width * self.__cell_size
         self.__grid_height_px = world.height * self.__cell_size
