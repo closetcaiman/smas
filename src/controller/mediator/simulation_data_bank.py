@@ -59,14 +59,18 @@ class SimulationDataBank:
             for epoch in sorted(self.simulation_metrics_history.keys())
         ]
 
-    def record_epoch(self, world_state: World, epoch: int) -> None:
+    def record_epoch(
+        self, world_state: World, epoch: int, barrier_placed: bool
+    ) -> None:
         """Record the state of the world at a specific epoch."""
         epoch_data = self.__initialize_data(world_state, epoch)
 
         self.simulation_history[epoch] = epoch_data
-        self.simulation_metrics_history[epoch] = self.__get_metrics(
-            epoch, self.__config
-        )
+
+        if barrier_placed:
+            self.simulation_metrics_history[epoch] = self.__get_metrics(
+                epoch, self.__config
+            )
         self.epoch_keys.append(epoch)
 
         if len(self.epoch_keys) > self.__active_limit:
@@ -227,14 +231,14 @@ class SimulationDataBank:
 
     def __flush_epoch(self, epoch: int):
         """Centralized memory destruction. Ensures data is completely cleared."""
-        if (
-            epoch not in self.simulation_history
-            or epoch not in self.simulation_metrics_history
-        ):
+        if epoch not in self.simulation_history:
             return
 
         data = self.simulation_history.pop(epoch)
-        metrics = self.simulation_metrics_history.pop(epoch)
+
+        if epoch in self.simulation_metrics_history:
+            metrics = self.simulation_metrics_history.pop(epoch)
+            del metrics
 
         # Explicitly clear internal lists to break references for the GC
         for region in data["region_data"].values():
@@ -242,4 +246,3 @@ class SimulationDataBank:
 
         data["region_data"].clear()
         del data
-        del metrics

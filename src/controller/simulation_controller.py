@@ -63,6 +63,7 @@ class SimulationController:
         self.__mediator.databank.record_epoch(
             self.__simulation.world,
             self.__simulation.epoch,
+            self.__simulation.barrier_placed,
         )
 
         self.__viewport = Viewport(
@@ -88,7 +89,6 @@ class SimulationController:
         self.__speed_index = 1
         self.__step_interval = config.controller.STEP_INTERVAL_MS[self.__speed_index]
         self.__last_step_time = 0
-        self.__barrier_placed = False
         self.__input_handler = InputHandler()
 
     @property
@@ -123,7 +123,7 @@ class SimulationController:
                 total_agents=total,
                 speed_label=speed,
                 metrics_data=self.__mediator.databank.metrics_history,
-                is_barrier=self.__barrier_placed,
+                is_barrier=self.__simulation.barrier_placed,
             )
         )
         pygame.display.flip()
@@ -183,11 +183,8 @@ class SimulationController:
 
     def __place_barrier(self) -> None:
         """Place a vertical barrier in the middle column of the grid."""
-        col = self.__viewport.grid_width // 2
-        for region in self.__simulation.world.regions:
-            if region.coordinates[0] == col:
-                region.make_barrier()
-        self.__barrier_placed = True
+        if not self.__simulation.barrier_placed:
+            self.__simulation.place_barrier(self.__viewport.grid_height // 2)
 
     def __speed_up(self) -> None:
         """Increase the simulation speed by decreasing the step interval."""

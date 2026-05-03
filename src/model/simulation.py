@@ -53,6 +53,7 @@ class Simulation:
         self.__config = config
         self.__behaviour = behaviour
         self.__epoch = 0
+        self.__barrier_placed = False
         self.__initialize_agents(list(self.world.regions))
 
     @property
@@ -60,14 +61,38 @@ class Simulation:
         """Get the current epoch of the simulation."""
         return self.__epoch
 
+    @property
+    def barrier_placed(self) -> bool:
+        """Check if the barrier has been placed in the simulation."""
+        return self.__barrier_placed
+
     def step(self):
         """Advance the simulation by one epoch, performing all agent actions and updating the world state."""
         self.__epoch += 1
-        self.mediator.databank.record_epoch(self.world, self.__epoch)
+        self.mediator.databank.record_epoch(
+            self.world, self.__epoch, self.__barrier_placed
+        )
         for region in self.world.regions:
             if not region.is_barrier:
                 self.__perform_agent_actions(region)
                 region.step_simulation()
+
+    def place_barrier(self, y: int) -> None:
+        """
+        Place a vertical barrier in the middle of the grid at the specified y-coordinate.
+
+        Args:
+            y (int): The y-coordinate at which to place the barrier. The barrier will be placed vertically across the grid.
+
+        Returns:
+            None
+
+        """
+        self.__barrier_placed = True
+        col = self.world.grid_width // 2
+        for region in self.world.regions:
+            if region.coordinates[0] == col:
+                region.make_barrier()
 
     def __initialize_agents(self, regions: List[Region]):
         for region in regions:
