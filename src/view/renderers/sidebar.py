@@ -27,7 +27,7 @@ class SidebarRenderer:
         self.__config = config
         self.__screen = viewport.screen
         self.__world = world
-        self.__sidebar_x = viewport.sidebar_x + config.METRICS_PANEL_WIDTH
+        self.__sidebar_x = viewport.sidebar_x
         self.__title_font = pygame.font.Font(None, self.__config.TITLE_FONT_SIZE)
         self.__hud_font = pygame.font.Font(None, self.__config.HUD_FONT_SIZE)
         self.__small_font = pygame.font.Font(None, self.__config.SMALL_FONT_SIZE)

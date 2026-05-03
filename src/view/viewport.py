@@ -87,7 +87,7 @@ class Viewport:
 
     def __calculate_sidebar_x(self) -> int:
         """Calculate the x-coordinate where the sidebar starts."""
-        return self.grid_area_width
+        return self.grid_area_width + self.offset_x
 
     def __calculate_cell_size(self) -> int:
         """Calculate the size of each grid cell based on the available area."""
@@ -104,4 +104,4 @@ class Viewport:
         grid_h_px = self.grid_height * self.cell_size
         off_x = (self.grid_area_width - grid_w_px) // 2
         off_y = (self.screen.get_height() - grid_h_px) // 2
-        return off_x, off_y
+        return off_x + self.offset_x, off_y

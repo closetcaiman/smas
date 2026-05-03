@@ -32,7 +32,7 @@ class AgentRenderer(UIRenderer):
         self.__config = config
         self.__world = world
         self.__cell_size = viewport.cell_size
-        self.__offset_x = viewport.offset[0] + config.METRICS_PANEL_WIDTH
+        self.__offset_x = viewport.offset[0]
         self.__offset_y = viewport.offset[1]
 
     def render(self, context: RenderContext) -> None:

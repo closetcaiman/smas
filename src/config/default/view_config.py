@@ -14,7 +14,7 @@ class ViewConfig(BaseModel):
     """Configuration for the view component of the application."""
 
     # Window
-    WINDOW_WIDTH: PositiveInt = Field(default=1000, ge=1000, le=2000)
+    WINDOW_WIDTH: PositiveInt = Field(default=1275, ge=1000, le=2000)
     WINDOW_HEIGHT: PositiveInt = Field(default=700, ge=700, le=1400)
 
     # Grid
