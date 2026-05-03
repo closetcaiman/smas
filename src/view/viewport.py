@@ -83,7 +83,7 @@ class Viewport:
 
     def __calculate_grid_area_width(self) -> int:
         """Calculate the width of the area available for rendering the grid."""
-        return self.screen.get_width() - self.sidebar_width
+        return self.screen.get_width() - self.sidebar_width - self.offset_x
 
     def __calculate_sidebar_x(self) -> int:
         """Calculate the x-coordinate where the sidebar starts."""
@@ -91,7 +91,7 @@ class Viewport:
 
     def __calculate_cell_size(self) -> int:
         """Calculate the size of each grid cell based on the available area."""
-        grid_area_width = self.screen.get_width() - self.sidebar_width
+        grid_area_width = self.screen.get_width() - self.sidebar_width - self.offset_x
         grid_area_height = self.screen.get_height()
         return min(
             grid_area_width // self.grid_width,
