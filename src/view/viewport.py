@@ -79,7 +79,7 @@ class Viewport:
         off_x, off_y = self.offset
         grid_x = (x - off_x) // self.cell_size
         grid_y = (y - off_y) // self.cell_size
-        return int(grid_x), int(grid_y)
+        return grid_x, grid_y
 
     def __calculate_grid_area_width(self) -> int:
         """Calculate the width of the area available for rendering the grid."""
