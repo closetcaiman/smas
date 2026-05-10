@@ -32,7 +32,7 @@ class ViewConfig(BaseModel):
     )
 
     # Sidebar
-    SIDEBAR_WIDTH: PositiveInt = Field(default=280, ge=200, le=400)
+    SIDEBAR_WIDTH: PositiveInt = Field(default=280, ge=200, le=800)
     SIDEBAR_BG_COLOR: tuple[NonNegativeInt, NonNegativeInt, NonNegativeInt] = Field(
         default=(22, 22, 22)
     )
@@ -40,7 +40,7 @@ class ViewConfig(BaseModel):
         default=(90, 90, 90)
     )
     SIDEBAR_BORDER_WIDTH: PositiveInt = Field(default=2, ge=1)
-    SIDEBAR_WIDTH: PositiveInt = Field(default=280, ge=200, le=400)
+    SIDEBAR_WIDTH: PositiveInt = Field(default=280, ge=200, le=800)
     SIDEBAR_MARGIN: PositiveInt = Field(default=15, ge=0)
 
     # Agents
@@ -89,7 +89,7 @@ class ViewConfig(BaseModel):
     SMALL_FONT_SIZE: PositiveInt = Field(default=16, ge=10)
 
     # Metrics
-    METRICS_PANEL_WIDTH: PositiveInt = Field(default=275, ge=275, le=400)
+    METRICS_PANEL_WIDTH: PositiveInt = Field(default=600, ge=275, le=800)
     METRICS_BG_COLOR: tuple[NonNegativeInt, NonNegativeInt, NonNegativeInt] = Field(
         default=(30, 30, 30)
     )
