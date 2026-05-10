@@ -83,20 +83,20 @@ class MetricsRenderer(UIRenderer):
             latest = context.metrics_data[-1]
 
             y_pos = 70
-            spacing = 430
+            spacing = 250
 
             self.__viewport.screen.blit(self.__cached_surfaces[0], (0, y_pos))
             val_text = font.render(
                 f"Current FST: {latest['fst']:.4f}", True, (255, 255, 255)
             )
-            self.__viewport.screen.blit(val_text, (10, y_pos + 400))
+            self.__viewport.screen.blit(val_text, (10, y_pos + 200))
 
             y_pos += spacing
             self.__viewport.screen.blit(self.__cached_surfaces[2], (0, y_pos))
             b_text = font.render(
                 f"B-Dist: {latest['bhattacharyya_distance']:.4f}", True, (255, 255, 255)
             )
-            self.__viewport.screen.blit(b_text, (10, y_pos + 400))
+            self.__viewport.screen.blit(b_text, (10, y_pos + 200))
 
             y_pos += spacing
             self.__viewport.screen.blit(self.__cached_surfaces[1], (0, y_pos))
@@ -107,7 +107,7 @@ class MetricsRenderer(UIRenderer):
 
         # Helper to create a single plot image
         def _save_plot(plot_func, *args):
-            fig, ax = plt.subplots(figsize=(width_in_inches, 4.0), dpi=100)
+            fig, ax = plt.subplots(figsize=(width_in_inches, 2.0), dpi=100)
             plot_func(ax, *args)
             fig.tight_layout(pad=1.0)
             buf = io.BytesIO()
