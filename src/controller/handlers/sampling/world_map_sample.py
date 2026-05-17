@@ -35,8 +35,8 @@ class WorldMapSample:
         green_index = abs(
             self.__hue(x, y) - 120
         )  # 120 - angle for green, green_index == 0 -> greenest
-        vegetation_factor = max(0, 60 - green_index) / 60
-        light_factor = max(0, self.__value(x, y) - 215) / 40
+        vegetation_factor = max(0, 100 - abs(self.__hue(x, y) - 120)) / 100
+        light_factor = max(0, self.__value(x, y) - 155) / 100
         return {
             "grass_amount": int(20 * vegetation_factor),
             "grass_growth": int(10 * light_factor),
@@ -47,8 +47,8 @@ class WorldMapSample:
         """Only grows in areas with some saturation (enough resources) and sufficient light."""
         saturation_factor = self.__saturation(x, y) / 255
         has_tall_grass = saturation_factor > 0.3
-        vegetation_factor = max(0, 60 - abs(self.__hue(x, y) - 120)) / 60
-        light_factor = max(0, self.__value(x, y) - 215) / 40
+        vegetation_factor = max(0, 100 - abs(self.__hue(x, y) - 120)) / 100
+        light_factor = max(0, self.__value(x, y) - 155) / 100
         return {
             "tall_grass_amount": int(10 * vegetation_factor) if has_tall_grass else 0,
             "tall_grass_growth": int(10 * light_factor) if has_tall_grass else 0,
@@ -61,8 +61,8 @@ class WorldMapSample:
         """Fruiting plants only grow in areas with high saturation (more resources) and sufficient light."""
         saturation_factor = self.__saturation(x, y) / 255
         has_fruit = saturation_factor > 0.5
-        vegetation_factor = max(0, 60 - abs(self.__hue(x, y) - 120)) / 60
-        light_factor = max(0, self.__value(x, y) - 215) / 40
+        vegetation_factor = max(0, 100 - abs(self.__hue(x, y) - 120)) / 100
+        light_factor = max(0, self.__value(x, y) - 155) / 100
         return {
             "fruit_amount": int(10 * vegetation_factor) if has_fruit else 0,
             "fruit_growth": int(10 * light_factor) if has_fruit else 0,
@@ -84,11 +84,11 @@ class WorldMapSample:
         return int(50 * saturation_factor)
 
     def temperature_seed(self, x: int, y: int) -> int:
-        """Calculate temperature based on hue, where redder colors are hotter."""
+        """Calculate temperature based on hue, where redder colors are higher and therefore colder."""
         red_index = abs(
             (self.__hue(x, y) + 180) % 360 - 180
         )  # handle the 360 / 0 deg point on the circle, 0 - reddest
-        temperature_factor = 1 - red_index / 180
+        temperature_factor = red_index / 180
         return int(28 * temperature_factor)
 
     def color_at(self, x: int, y: int) -> list[int]:
